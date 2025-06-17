@@ -125,7 +125,6 @@ else()
     add_compile_options(
         -Werror=all
         -Werror=extra
-        -Werror=missing-declarations
         -Werror=shadow
         -Werror=unused
 

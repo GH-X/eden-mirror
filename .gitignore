@@ -53,3 +53,5 @@ eden-windows-msvc
 artifacts
 *.AppImage*
 /install*
+/*.patch
+/.cache
