@@ -202,6 +202,8 @@ struct Values {
     Setting<bool> favorites_expanded{linkage, true, "favorites_expanded", Category::UiGameList};
     QVector<u64> favorited_ids;
 
+    Setting<u8, true> grid_columns{linkage, 4, 1, 8, "grid_columns", Category::UiGameList};
+
     // Compatibility List
     Setting<bool> show_compat{linkage, false, "show_compat", Category::UiGameList};
 

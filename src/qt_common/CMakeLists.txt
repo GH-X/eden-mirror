@@ -29,10 +29,6 @@ add_library(qt_common STATIC
     discord/discord.h
 )
 
-# Extra deps
-add_subdirectory(externals)
-target_link_libraries(qt_common PUBLIC QuaZip::QuaZip)
-
 create_target_directory_groups(qt_common)
 
 if (USE_DISCORD_PRESENCE)
