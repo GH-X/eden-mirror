@@ -98,6 +98,8 @@ if ("x86_64" IN_LIST ARCHITECTURE)
         REPO "zyantific/zycore-c"
         SHA 75a36c45ae
         HASH 15aa399f39713e042c4345bc3175c82f14dca849fde2a21d4f591f62c43e227b70d868d8bb86beb5f4eb68b1d6bd3792cdd638acf89009e787e3d10ee7401924
+        OPTIONS
+            "CMAKE_DISABLE_FIND_PACKAGE_Doxygen ON"
     )
 
     AddPackage(
