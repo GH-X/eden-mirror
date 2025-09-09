@@ -253,30 +253,38 @@ namespace Vulkan {
 
     MemoryCommit MemoryAllocator::Commit(const VkMemoryRequirements &reqs, MemoryUsage usage)
     {
+        // Adreno stands firm - ensure 4KB alignment for all Adreno GPUs
+        VkMemoryRequirements adjusted_reqs = reqs;
+        const bool is_adreno = (device.GetDriverID() == VK_DRIVER_ID_QUALCOMM_PROPRIETARY ||
+                                device.GetDriverID() == VK_DRIVER_ID_MESA_TURNIP);
+        if (is_adreno) {
+            adjusted_reqs.size = Common::AlignUp(reqs.size, 4096);
+        }
+
         const auto vma_usage = MemoryUsageVma(usage);
         VmaAllocationCreateInfo ci{};
         ci.flags = VMA_ALLOCATION_CREATE_WITHIN_BUDGET_BIT | MemoryUsageVmaFlags(usage);
         ci.usage = vma_usage;
-        ci.memoryTypeBits = reqs.memoryTypeBits & valid_memory_types;
+        ci.memoryTypeBits = adjusted_reqs.memoryTypeBits & valid_memory_types;
         ci.requiredFlags = 0;
         ci.preferredFlags = MemoryUsagePreferredVmaFlags(usage);
 
         VmaAllocation a{};
         VmaAllocationInfo info{};
 
-        VkResult res = vmaAllocateMemory(allocator, &reqs, &ci, &a, &info);
+        VkResult res = vmaAllocateMemory(allocator, &adjusted_reqs, &ci, &a, &info);
 
         if (res != VK_SUCCESS) {
             // Relax 1: drop budget constraint
             auto ci2 = ci;
             ci2.flags &= ~VMA_ALLOCATION_CREATE_WITHIN_BUDGET_BIT;
-            res = vmaAllocateMemory(allocator, &reqs, &ci2, &a, &info);
+            res = vmaAllocateMemory(allocator, &adjusted_reqs, &ci2, &a, &info);
 
             // Relax 2: if we preferred DEVICE_LOCAL, drop that preference
             if (res != VK_SUCCESS && (ci.preferredFlags & VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT)) {
                 auto ci3 = ci2;
                 ci3.preferredFlags &= ~VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
-                res = vmaAllocateMemory(allocator, &reqs, &ci3, &a, &info);
+                res = vmaAllocateMemory(allocator, &adjusted_reqs, &ci3, &a, &info);
             }
         }
 
