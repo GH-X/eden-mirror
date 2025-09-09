@@ -196,6 +196,21 @@ namespace Vulkan {
                 }
             });
         }
+
+        // Additional workarounds for Adreno GPUs to avoid VMA fragmentation
+        const bool is_adreno = (device.GetDriverID() == VK_DRIVER_ID_QUALCOMM_PROPRIETARY ||
+                                device.GetDriverID() == VK_DRIVER_ID_MESA_TURNIP);
+        if (is_adreno) {
+            using namespace Common::Literals;
+            for (u32 t = 0; t < properties.memoryTypeCount; ++t) {
+                const auto& memory_type = properties.memoryTypes[t];
+                const auto& heap = properties.memoryHeaps[memory_type.heapIndex];
+                // Skip memory types from heaps smaller than 512MB to reduce fragmentation
+                if (heap.size < 512_MiB) {
+                    valid_memory_types &= ~(1u << t);
+                }
+            }
+        }
     }
 
     MemoryAllocator::~MemoryAllocator() = default;
@@ -253,7 +268,7 @@ namespace Vulkan {
 
     MemoryCommit MemoryAllocator::Commit(const VkMemoryRequirements &reqs, MemoryUsage usage)
     {
-        // Adreno stands firm - ensure 4KB alignment for all Adreno GPUs
+        // Ensure 4KB alignment for all Adreno GPUs
         VkMemoryRequirements adjusted_reqs = reqs;
         const bool is_adreno = (device.GetDriverID() == VK_DRIVER_ID_QUALCOMM_PROPRIETARY ||
                                 device.GetDriverID() == VK_DRIVER_ID_MESA_TURNIP);
@@ -263,7 +278,11 @@ namespace Vulkan {
 
         const auto vma_usage = MemoryUsageVma(usage);
         VmaAllocationCreateInfo ci{};
-        ci.flags = VMA_ALLOCATION_CREATE_WITHIN_BUDGET_BIT | MemoryUsageVmaFlags(usage);
+        ci.flags = MemoryUsageVmaFlags(usage);
+        // Skip budget constraints for Adreno GPUs to avoid fragmentation issues
+        if (!is_adreno) {
+            ci.flags |= VMA_ALLOCATION_CREATE_WITHIN_BUDGET_BIT;
+        }
         ci.usage = vma_usage;
         ci.memoryTypeBits = adjusted_reqs.memoryTypeBits & valid_memory_types;
         ci.requiredFlags = 0;
@@ -293,11 +312,16 @@ namespace Vulkan {
     }
 
     MemoryCommit MemoryAllocator::Commit(const vk::Buffer &buffer, MemoryUsage usage) {
-        // Allocate memory appropriate for this buffer automatically
         const auto vma_usage = MemoryUsageVma(usage);
+        const bool is_adreno = (device.GetDriverID() == VK_DRIVER_ID_QUALCOMM_PROPRIETARY ||
+                                device.GetDriverID() == VK_DRIVER_ID_MESA_TURNIP);
 
         VmaAllocationCreateInfo ci{};
-        ci.flags = VMA_ALLOCATION_CREATE_WITHIN_BUDGET_BIT | MemoryUsageVmaFlags(usage);
+        ci.flags = MemoryUsageVmaFlags(usage);
+        // Skip budget constraints for Adreno GPUs to avoid fragmentation issues
+        if (!is_adreno) {
+            ci.flags |= VMA_ALLOCATION_CREATE_WITHIN_BUDGET_BIT;
+        }
         ci.usage = vma_usage;
         ci.requiredFlags = 0;
         ci.preferredFlags = MemoryUsagePreferredVmaFlags(usage);

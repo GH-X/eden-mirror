@@ -759,16 +759,16 @@ Device::Device(VkInstance instance_, vk::PhysicalDevice physical_, VkSurfaceKHR 
     functions.vkGetDeviceProcAddr = dld.vkGetDeviceProcAddr;
 
     VmaAllocatorCreateFlags flags = VMA_ALLOCATOR_CREATE_EXTERNALLY_SYNCHRONIZED_BIT;
-    if (extensions.memory_budget) {
+    if (extensions.memory_budget && !is_qualcomm && !is_turnip) {
         flags |= VMA_ALLOCATOR_CREATE_EXT_MEMORY_BUDGET_BIT;
     }
     const VmaAllocatorCreateInfo allocator_info{
             .flags = flags,
             .physicalDevice = physical,
             .device = *logical,
-            .preferredLargeHeapBlockSize = is_integrated
-                                           ? (64u * 1024u * 1024u)
-                                           : (256u * 1024u * 1024u),
+            .preferredLargeHeapBlockSize = (is_qualcomm || is_turnip)
+                                           ? (256u * 1024u * 1024u)  // Use larger blocks for Adreno GPUs
+                                           : (is_integrated ? (64u * 1024u * 1024u) : (256u * 1024u * 1024u)),
             .pAllocationCallbacks = nullptr,
             .pDeviceMemoryCallbacks = nullptr,
             .pHeapSizeLimit = nullptr,
