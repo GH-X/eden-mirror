@@ -10,6 +10,7 @@
 #include "shared_translation.h"
 
 #include <QCoreApplication>
+#include <QWidget>
 #include "common/settings.h"
 #include "common/settings_enums.h"
 #include "common/settings_setting.h"
@@ -17,11 +18,12 @@
 #include "qt_common/uisettings.h"
 #include <map>
 #include <memory>
+#include <tuple>
 #include <utility>
 
 namespace ConfigurationShared {
 
-std::unique_ptr<TranslationMap> InitializeTranslations(QObject* parent)
+std::unique_ptr<TranslationMap> InitializeTranslations(QWidget* parent)
 {
     std::unique_ptr<TranslationMap> translations = std::make_unique<TranslationMap>();
     const auto& tr = [parent](const char* text) -> QString { return parent->tr(text); };
@@ -32,85 +34,85 @@ std::unique_ptr<TranslationMap> InitializeTranslations(QObject* parent)
     // A setting can be ignored by giving it a blank name
 
     // Applets
-    INSERT(Settings, cabinet_applet_mode, tr("Amiibo editor"), QString());
-    INSERT(Settings, controller_applet_mode, tr("Controller configuration"), QString());
+    INSERT(Settings, cabinet_applet_mode, tr("Amiibo 编辑器"), QString());
+    INSERT(Settings, controller_applet_mode, tr("控制器设置"), QString());
     INSERT(Settings, data_erase_applet_mode, tr("Data erase"), QString());
-    INSERT(Settings, error_applet_mode, tr("Error"), QString());
+    INSERT(Settings, error_applet_mode, tr("错误"), QString());
     INSERT(Settings, net_connect_applet_mode, tr("Net connect"), QString());
-    INSERT(Settings, player_select_applet_mode, tr("Player select"), QString());
-    INSERT(Settings, swkbd_applet_mode, tr("Software keyboard"), QString());
+    INSERT(Settings, player_select_applet_mode, tr("选择玩家"), QString());
+    INSERT(Settings, swkbd_applet_mode, tr("软键盘"), QString());
     INSERT(Settings, mii_edit_applet_mode, tr("Mii Edit"), QString());
-    INSERT(Settings, web_applet_mode, tr("Online web"), QString());
+    INSERT(Settings, web_applet_mode, tr("在线网页"), QString());
     INSERT(Settings, shop_applet_mode, tr("Shop"), QString());
-    INSERT(Settings, photo_viewer_applet_mode, tr("Photo viewer"), QString());
-    INSERT(Settings, offline_web_applet_mode, tr("Offline web"), QString());
+    INSERT(Settings, photo_viewer_applet_mode, tr("照片查看器"), QString());
+    INSERT(Settings, offline_web_applet_mode, tr("离线网页"), QString());
     INSERT(Settings, login_share_applet_mode, tr("Login share"), QString());
     INSERT(Settings, wifi_web_auth_applet_mode, tr("Wifi web auth"), QString());
     INSERT(Settings, my_page_applet_mode, tr("My page"), QString());
 
     // Audio
-    INSERT(Settings, sink_id, tr("Output Engine:"), QString());
-    INSERT(Settings, audio_output_device_id, tr("Output Device:"), QString());
-    INSERT(Settings, audio_input_device_id, tr("Input Device:"), QString());
-    INSERT(Settings, audio_muted, tr("Mute audio"), QString());
-    INSERT(Settings, volume, tr("Volume:"), QString());
+    INSERT(Settings, sink_id, tr("输出引擎："), QString());
+    INSERT(Settings, audio_output_device_id, tr("输出设备："), QString());
+    INSERT(Settings, audio_input_device_id, tr("输入设备："), QString());
+    INSERT(Settings, audio_muted, tr("静音"), QString());
+    INSERT(Settings, volume, tr("音量："), QString());
     INSERT(Settings, dump_audio_commands, QString(), QString());
-    INSERT(UISettings, mute_when_in_background, tr("Mute audio when in background"), QString());
+    INSERT(UISettings, mute_when_in_background, tr("模拟器后台运行时静音"), QString());
 
     // Core
     INSERT(
         Settings,
         use_multi_core,
-        tr("Multicore CPU Emulation"),
-        tr("This option increases CPU emulation thread use from 1 to the Switch’s maximum of 4.\n"
-           "This is mainly a debug option and shouldn’t be disabled."));
+        tr("多核 CPU 仿真"),
+        tr("此选项将 CPU 模拟线程的数量从 1 增加到 Switch 实机的最大值 4。\n"
+           "这是调试选项，不应被禁用。"));
     INSERT(
         Settings,
         memory_layout_mode,
-        tr("Memory Layout"),
-        tr("Increases the amount of emulated RAM from the stock 4GB of the retail Switch to the "
-           "developer kit's 8/6GB.\nIt’s doesn’t improve stability or performance and is intended "
-           "to let big texture mods fit in emulated RAM.\nEnabling it will increase memory "
-           "use. It is not recommended to enable unless a specific game with a texture mod needs "
-           "it."));
+        tr("内存布局"),
+        tr("提升模拟内存容量，从零售 Switch 通常的 4GB 内存增加到开发机的 6/8GB 内存。\n"
+           "不会提高稳定性和性能，"
+           "而是让大型纹理 MOD 适用于模拟内存。启用时将增加内存使用量。\n"
+           "建议不要启用，"
+           "除非具有纹理 MOD 的某些游戏需要。"));
     INSERT(Settings, use_speed_limit, QString(), QString());
     INSERT(Settings,
            speed_limit,
-           tr("Limit Speed Percent"),
-           tr("Controls the game's maximum rendering speed, but it’s up to each game if it runs "
-              "faster or not.\n200% for a 30 FPS game is 60 FPS, and for a "
-              "60 FPS game it will be 120 FPS.\nDisabling it means unlocking the framerate to the "
-              "maximum your PC can reach."));
+           tr("运行速度限制"),
+           tr("控制游戏的最大渲染速度，但这取决于游戏的实际运行速度。\n"
+              "对于 30 FPS 的游戏，设置为 200% 则将最高运行速度限制为 60 FPS；\n"
+              "对于 60 FPS 的游戏，设置为 200% 则将最高运行速度限制为 120 FPS。\n"
+              "禁用此项将解锁帧率限制，尽可能快地运行游戏。"));
     INSERT(Settings,
            sync_core_speed,
-           tr("Synchronize Core Speed"),
-           tr("Synchronizes CPU core speed with the game's maximum rendering speed to boost FPS "
-              "without affecting game speed (animations, physics, etc.).\n"
-              "Compatibility varies by game; many (especially older ones) may not respond well.\n"
-              "Can help reduce stuttering at lower framerates."));
+           tr("同步核心速度"),
+           tr("将 CPU 核心速度与游戏的最大渲染速度同步，从而提升 FPS，"
+              "且不影响游戏速度(动画、物理、等等)。\n"
+              "兼容性因游戏而异；许多游戏(尤其是老游戏)的响应速度可能不佳。\n"
+              "也许有助于减少低帧率下的卡顿。"));
 
     // Cpu
     INSERT(Settings,
            cpu_accuracy,
-           tr("Accuracy:"),
-           tr("This setting controls the accuracy of the emulated CPU.\nDon't change this unless "
-              "you know what you are doing."));
-    INSERT(Settings, cpu_backend, tr("Backend:"), QString());
+           tr("精度："),
+           tr("此选项控制模拟 CPU 的精度。\n"
+              "如果你不确定，就不要更改此项。"));
+    INSERT(Settings, cpu_backend, tr("后端："), QString());
 
     INSERT(Settings, use_fast_cpu_time, QString(), QString());
     INSERT(Settings,
            fast_cpu_time,
-           tr("Fast CPU Time"),
-           tr("Overclocks the emulated CPU to remove some FPS limiters. Weaker CPUs may see reduced performance, "
-              "and certain games may behave improperly.\nUse Boost (1700MHz) to run at the Switch's highest native "
-              "clock, or Fast (2000MHz) to run at 2x clock."));
+           tr("快速 CPU 时间"),
+           tr("对模拟 CPU 进行超频，以消除部分 FPS 限制。较弱的 CPU 可能会降低性能，某些游戏可能会运行异常。\n"
+              "Boost (1700MHz) 以最高原生时钟速度运行，"
+              "Fast (2000MHz) 以双倍默认时钟速度运行。"));
 
     INSERT(Settings, use_custom_cpu_ticks, QString(), QString());
     INSERT(Settings,
            cpu_ticks,
-           tr("Custom CPU Ticks"),
-           tr("Set a custom value of CPU ticks. Higher values can increase performance, but may "
-              "also cause the game to freeze. A range of 77–21000 is recommended."));
+           tr("自定义 CPU 时钟"),
+           tr("设置自定义的 CPU 时钟值。更高的值可能提高性能，"
+              "但也可能导致游戏卡顿。建议范围为77-21000。"));
     INSERT(Settings, cpu_backend, tr("Backend:"), QString());
 
     // Cpu Debug
@@ -158,243 +160,245 @@ std::unique_ptr<TranslationMap> InitializeTranslations(QObject* parent)
     INSERT(
         Settings,
         renderer_backend,
-        tr("API:"),
-        tr("Switches between the available graphics APIs.\nVulkan is recommended in most cases."));
+        tr("界面："),
+        tr("选择图形界面。\n大多数情况下建议使用 Vulkan。"));
     INSERT(Settings,
            vulkan_device,
-           tr("Device:"),
-           tr("This setting selects the GPU to use with the Vulkan backend."));
+           tr("设备："),
+           tr("图形界面为 Vulkan 时所使用的 GPU。"));
     INSERT(Settings,
            shader_backend,
-           tr("Shader Backend:"),
-           tr("The shader backend to use for the OpenGL renderer.\nGLSL is the fastest in "
-              "performance and the best in rendering accuracy.\n"
-              "GLASM is a deprecated NVIDIA-only backend that offers much better shader building "
-              "performance at the cost of FPS and rendering accuracy.\n"
-              "SPIR-V compiles the fastest, but yields poor results on most GPU drivers."));
+           tr("着色器后端："),
+           tr("选择 OpenGL 渲染器的着色器后端。\n"
+              "GLSL 具有最好的性能和渲染精度。\n"
+              "GLASM 仅限于 NVIDIA GPU，"
+              "以 FPS 和渲染精度为代价提供更好的着色器构建性能。\n"
+              "SPIR-V 编译速度最快，但在大多数 GPU 驱动程序上表现很差。"));
     INSERT(Settings,
            resolution_setup,
-           tr("Resolution:"),
-           tr("Forces the game to render at a different resolution.\nHigher resolutions require "
-              "much more VRAM and bandwidth.\n"
-              "Options lower than 1X can cause rendering issues."));
-    INSERT(Settings, scaling_filter, tr("Window Adapting Filter:"), QString());
+           tr("分辨率："),
+           tr("指定游戏画面的分辨率。\n"
+              "更高的分辨率需要更多的显存和带宽。\n"
+              "低于 1X 的选项可能造成渲染问题。"));
+    INSERT(Settings, scaling_filter, tr("视窗滤镜："), QString());
     INSERT(Settings,
            fsr_sharpening_slider,
-           tr("FSR Sharpness:"),
-           tr("Determines how sharpened the image will look while using FSR’s dynamic contrast."));
+           tr("FSR 锐化度："),
+           tr("指定使用 FSR 时图像的锐化程度。"));
     INSERT(Settings,
            anti_aliasing,
-           tr("Anti-Aliasing Method:"),
-           tr("The anti-aliasing method to use.\nSMAA offers the best quality.\nFXAA has a "
-              "lower performance impact and can produce a better and more stable picture under "
-              "very low resolutions."));
+           tr("抗锯齿方式："),
+           tr("选择抗锯齿的方式。\nSMAA 抗锯齿提供最佳质量。\n"
+              "FXAA 对性能影响较小，可以在非常低的分辨率下生成更好、"
+              "更稳定的图像。"));
     INSERT(Settings,
            fullscreen_mode,
-           tr("Fullscreen Mode:"),
-           tr("The method used to render the window in fullscreen.\nBorderless offers the best "
-              "compatibility with the on-screen keyboard that some games request for "
-              "input.\nExclusive "
-              "fullscreen may offer better performance and better Freesync/Gsync support."));
+           tr("全屏模式："),
+           tr("指定游戏的全屏模式。\n"
+              "无边框窗口对屏幕键盘具有最好的兼容性，"
+              "适用于某些需要屏幕键盘进行输入的游戏。\n"
+              "独占全屏提供更好的性能和同步(Freesync/Gsync)支持。"));
     INSERT(Settings,
            aspect_ratio,
-           tr("Aspect Ratio:"),
-           tr("Stretches the game to fit the specified aspect ratio.\nSwitch games only support "
-              "16:9, so custom game mods are required to get other ratios.\nAlso controls the "
-              "aspect ratio of captured screenshots."));
+           tr("屏幕纵横比："),
+           tr("拉伸游戏画面以适应指定的屏幕纵横比。\n"
+              "Switch 游戏只支持 16:9，因此需要 MOD 才能实现其它比例。\n"
+              "此选项也决定捕获屏幕截图的纵横比。"));
     INSERT(Settings,
            use_disk_shader_cache,
-           tr("Use disk pipeline cache"),
-           tr("Allows saving shaders to storage for faster loading on following game "
-              "boots.\nDisabling "
-              "it is only intended for debugging."));
+           tr("启用磁盘管线缓存"),
+           tr("将生成的着色器保存到硬盘，"
+              "提高后续游戏过程中的着色器加载速度。\n"
+              "请仅在调试时禁用此项。"));
     INSERT(Settings,
            optimize_spirv_output,
-           tr("Optimize SPIRV output shader"),
-           tr("Runs an additional optimization pass over generated SPIRV shaders.\n"
-              "Will increase time required for shader compilation.\nMay slightly improve "
-              "performance.\nThis feature is experimental."));
+           tr("优化 SPIRV 输出着色器"),
+           tr("优化编译后的 SPIRV 着色器。\n"
+              "这将增加着色器编译所需的时间。\n"
+              "可能会略微提升性能。\n此功能尚处于实验阶段。"));
     INSERT(
         Settings,
         use_asynchronous_gpu_emulation,
-        tr("Use asynchronous GPU emulation"),
-        tr("Uses an extra CPU thread for rendering.\nThis option should always remain enabled."));
+        tr("使用 GPU 异步模拟"),
+        tr("使用额外的 CPU 线程进行渲染。\n此选项应始终保持启用状态。"));
     INSERT(Settings,
            nvdec_emulation,
-           tr("NVDEC emulation:"),
-           tr("Specifies how videos should be decoded.\nIt can either use the CPU or the GPU for "
-              "decoding, or perform no decoding at all (black screen on videos).\n"
-              "In most cases, GPU decoding provides the best performance."));
+           tr("NVDEC 模拟方式："),
+           tr("指定解码视频的方式。\n"
+              "可以使用 CPU 或 GPU 进行解码，也可以完全不进行解码(遇到视频则黑屏处理)。\n"
+              "大多数情况下，使用 GPU 解码将提供最好的性能。"));
     INSERT(Settings,
            accelerate_astc,
-           tr("ASTC Decoding Method:"),
-           tr("This option controls how ASTC textures should be decoded.\n"
-              "CPU: Use the CPU for decoding, slowest but safest method.\n"
-              "GPU: Use the GPU's compute shaders to decode ASTC textures, recommended for most "
-              "games and users.\n"
-              "CPU Asynchronously: Use the CPU to decode ASTC textures as they arrive. Completely "
-              "eliminates ASTC decoding\nstuttering at the cost of rendering issues while the "
-              "texture is being decoded."));
+           tr("ASTC 纹理解码方式："),
+           tr("此选项控制 ASTC 纹理解码方式。\n"
+              "CPU：使用 CPU 进行解码，速度最慢但最安全。\n"
+              "GPU：使用 GPU 的计算着色器来解码 ASTC 纹理，"
+              "建议大多数游戏和用户使用此项。\n"
+              "CPU 异步：使用 CPU 在 ASTC 纹理到达时对其进行解码。\n"
+              "消除 ASTC 解码带来的卡顿，"
+              "但在解码时可能出现渲染问题。"));
     INSERT(
         Settings,
         astc_recompression,
-        tr("ASTC Recompression Method:"),
-        tr("Almost all desktop and laptop dedicated GPUs lack support for ASTC textures, forcing "
-           "the emulator to decompress to an intermediate format any card supports, RGBA8.\n"
-           "This option recompresses RGBA8 to either the BC1 or BC3 format, saving VRAM but "
-           "negatively affecting image quality."));
+        tr("ASTC 纹理重压缩方式："),
+        tr("几乎所有台式机和笔记本电脑 GPU 都不支持 ASTC 纹理，"
+           "这迫使模拟器解压纹理到 GPU 支持的中间格式 RGBA8。\n"
+           "此选项可将 RGBA8 重新压缩为 BC1 或 BC3 格式以节省显存，"
+           "但会对图像质量产生负面影响。"));
     INSERT(Settings,
            vram_usage_mode,
-           tr("VRAM Usage Mode:"),
-           tr("Selects whether the emulator should prefer to conserve memory or make maximum usage of available video memory for performance.\nAggressive mode may severely impact the performance of other applications such as recording software."));
+           tr("显存使用模式："),
+           tr("选择模拟器是优先节省显存还是最大限度地利用显存以提升性能。\n"
+              "激进模式可能会严重影响其他应用程序"
+              "(例如录屏软件)。"));
     INSERT(Settings,
            skip_cpu_inner_invalidation,
-           tr("Skip CPU Inner Invalidation"),
-           tr("Skips certain CPU-side cache invalidations during memory updates, reducing CPU usage and "
-              "improving it's performance. This may cause glitches or crashes on some games."));
+           tr("跳过 CPU 内在无效化"),
+           tr("在内存更新期间跳过某些 CPU 端缓存无效操作，从而降低 CPU 占用率并提升性能。"
+              "可能会导致某些游戏出现故障或崩溃。"));
     INSERT(
         Settings,
         vsync_mode,
-        tr("VSync Mode:"),
-        tr("FIFO (VSync) does not drop frames or exhibit tearing but is limited by the screen "
-           "refresh rate.\nFIFO Relaxed is similar to FIFO but allows tearing as it recovers from "
-           "a slow down.\nMailbox can have lower latency than FIFO and does not tear but may drop "
-           "frames.\nImmediate (no synchronization) just presents whatever is available and can "
-           "exhibit tearing."));
+        tr("垂直同步模式："),
+        tr("FIFO (垂直同步开)不会掉帧或产生画面撕裂，但受到屏幕刷新率的限制。\n"
+           "FIFO Relaxed 类似于 FIFO，但允许从低 FPS 恢复时产生撕裂。\n"
+           "Mailbox 具有比 FIFO 更低的延迟，不会产生撕裂但可能会掉帧。\n"
+           "Immediate (垂直同步关)只显示可用内容，"
+           "并可能产生撕裂。"));
     INSERT(Settings, bg_red, QString(), QString());
     INSERT(Settings, bg_green, QString(), QString());
     INSERT(Settings, bg_blue, QString(), QString());
 
     // Renderer (Advanced Graphics)
-    INSERT(Settings, sync_memory_operations, tr("Sync Memory Operations"),
-           tr("Ensures data consistency between compute and memory operations.\nThis option should fix issues in some games, but may also reduce performance in some cases.\nUnreal Engine 4 games often see the most significant changes thereof."));
+    INSERT(Settings, sync_memory_operations, tr("同步内存操作"),
+           tr("确保计算和内存操作之间的数据一致性。\n此选项应该可以修复某些游戏中的问题，但在某些情况下也可能会降低性能。\n虚幻引擎 4 开发的游戏通常影响较大。"));
     INSERT(Settings,
            async_presentation,
-           tr("Enable asynchronous presentation (Vulkan only)"),
-           tr("Slightly improves performance by moving presentation to a separate CPU thread."));
+           tr("启用异步帧提交 (仅限 Vulkan)"),
+           tr("将帧提交并移动到单独的 CPU 线程，略微提高性能。"));
     INSERT(
         Settings,
         renderer_force_max_clock,
-        tr("Force maximum clocks (Vulkan only)"),
-        tr("Runs work in the background while waiting for graphics commands to keep the GPU from "
-           "lowering its clock speed."));
+        tr("强制最大时钟 (仅限 Vulkan)"),
+        tr("在后台运行的同时等待图形命令，"
+           "以防止 GPU 降低时钟速度。"));
     INSERT(Settings,
            max_anisotropy,
-           tr("Anisotropic Filtering:"),
-           tr("Controls the quality of texture rendering at oblique angles.\nIt’s a light setting "
-              "and safe to set at 16x on most GPUs."));
+           tr("各向异性过滤："),
+           tr("控制斜角的纹理渲染质量。\n"
+              "这是一个渲染相关的选项，在大多数 GPU 上设置为 16x 是安全的。"));
     INSERT(Settings,
            gpu_accuracy,
-           tr("GPU Accuracy:"),
-           tr("Controls the GPU emulation accuracy.\nMost games render fine with Normal, but High is still "
-              "required for some.\nParticles tend to only render correctly with High "
-              "accuracy.\nExtreme should only be used as a last resort."));
+           tr("GPU 精度："),
+           tr("控制 GPU 模拟精度。大多数游戏 [正常] 精度模式渲染效果良好。\n"
+              "部分游戏需要 [高] 精度模式。粒子通常只有在 [高] 精度模式下才能正确渲染。\n"
+              "[极致] 精度模式仅作为最后的备选手段。"));
     INSERT(Settings,
            dma_accuracy,
-           tr("DMA Accuracy:"),
-           tr("Controls the DMA precision accuracy. Safe precision can fix issues in some games, but it can also impact performance in some cases.\nIf unsure, leave this on Default."));
+           tr("DMA 精度："),
+           tr("控制直接内存访问精度。[安全] 模式可以修复某些游戏中的问题，但在一些情况下也会影响性能。\n如果不确定，请保持默认值。"));
     INSERT(Settings,
            use_asynchronous_shaders,
-           tr("Use asynchronous shader building (Hack)"),
-           tr("Enables asynchronous shader compilation, which may reduce shader stutter.\nThis "
-              "feature "
-              "is experimental."));
+           tr("启用异步着色器构建 (不稳定)"),
+           tr("启用异步着色器编译，"
+              "可能会减少着色器卡顿。\n"
+              "实验性功能。"));
     INSERT(Settings, use_fast_gpu_time, QString(), QString());
     INSERT(Settings,
            fast_gpu_time,
-           tr("Fast GPU Time (Hack)"),
-           tr("Overclocks the emulated GPU to increase dynamic resolution and render "
-              "distance.\nUse 128 for maximal performance and 512 for maximal graphics fidelity."));
+           tr("快速 GPU 时间 (不稳定)"),
+           tr("对模拟器 GPU 进行超频以增加动态分辨率和渲染距离。\n"
+              "低 (128) 可获得最佳性能，高 (512) 可获得最佳图形保真度"));
 
     INSERT(Settings,
            use_vulkan_driver_pipeline_cache,
-           tr("Use Vulkan pipeline cache"),
-           tr("Enables GPU vendor-specific pipeline cache.\nThis option can improve shader loading "
-              "time significantly in cases where the Vulkan driver does not store pipeline cache "
-              "files internally."));
+           tr("启用 Vulkan 管线缓存"),
+           tr("启用 GPU 供应商专用的管线缓存。\n"
+              "在 Vulkan 驱动程序内部不使用管线缓存的情况下，"
+              "此选项可显著提高着色器加载速度。"));
     INSERT(
         Settings,
         enable_compute_pipelines,
-        tr("Enable Compute Pipelines (Intel Vulkan Only)"),
-        tr("Enable compute pipelines, required by some games.\nThis setting only exists for Intel "
-           "proprietary drivers, and may crash if enabled.\nCompute pipelines are always enabled "
-           "on all other drivers."));
+        tr("启用计算管线 (仅限 Intel 显卡 Vulkan 模式)"),
+        tr("启用某些游戏所需的计算管线。\n"
+           "此选项仅适用于英特尔专有驱动程序。如果启用，可能会造成崩溃。\n"
+           "在其他的驱动程序上将始终启用计算管线。"));
     INSERT(
         Settings,
         use_reactive_flushing,
-        tr("Enable Reactive Flushing"),
-        tr("Uses reactive flushing instead of predictive flushing, allowing more accurate memory "
-           "syncing."));
+        tr("启用反应性刷新"),
+        tr("使用反应性刷新取代预测性刷新，"
+           "从而更精确地同步内存。"));
     INSERT(Settings,
            use_video_framerate,
-           tr("Sync to framerate of video playback"),
-           tr("Run the game at normal speed during video playback, even when the framerate is "
-              "unlocked."));
+           tr("播放视频时同步帧率"),
+           tr("在视频播放期间以正常速度运行游戏，"
+              "即使帧率未锁定。"));
     INSERT(Settings,
            barrier_feedback_loops,
-           tr("Barrier feedback loops"),
-           tr("Improves rendering of transparency effects in specific games."));
+           tr("屏障反馈环路"),
+           tr("改进某些游戏中透明效果的渲染。"));
 
     // Renderer (Extensions)
     INSERT(Settings,
            enable_raii,
            tr("RAII"),
-           tr("A method of automatic resource management in Vulkan "
-              "that ensures proper release of resources "
-              "when they are no longer needed, but may cause crashes in bundled games."));
+           tr("Vulkan 中的一种自动资源回收方法，"
+              "可确保不再需要的资源正确释放，"
+              "但可能会导致游戏崩溃。"));
     INSERT(Settings,
            dyna_state,
-           tr("Extended Dynamic State"),
-           tr("Controls the number of features that can be used in Extended Dynamic State.\nHigher numbers allow for more features and can increase performance, but may cause issues with some drivers and vendors.\nThe default value may vary depending on your system and hardware capabilities.\nThis value can be changed until stability and a better visual quality are achieved."));
+           tr("动态状态扩展"),
+           tr("控制动态状态扩展可使用的功能数量。\n数值越高，功能越多，性能越好，但可能会导致某些驱动程序和供应商出现问题。\n默认值可能因系统和硬件而异。\n更改此值可在视觉质量和稳定性中取得平衡。"));
 
     INSERT(Settings,
            provoking_vertex,
-           tr("Provoking Vertex"),
-           tr("Improves lighting and vertex handling in certain games.\n"
-              "Only Vulkan 1.0+ devices support this extension."));
+           tr("引发顶点"),
+           tr("改善某些游戏中的光照和顶点处理。\n"
+              "仅支持 Vulkan 1.0+。"));
 
     INSERT(Settings,
            descriptor_indexing,
-           tr("Descriptor Indexing"),
-           tr("Improves texture & buffer handling and the Maxwell translation layer.\n"
-              "Some Vulkan 1.1+ and all 1.2+ devices support this extension."));
+           tr("描述符索引"),
+           tr("改进纹理和缓冲区处理以及 Maxwell 转换层。\n"
+              "部分 Vulkan 1.1+ 和所有 1.2+ 支持。"));
 
     INSERT(Settings, sample_shading, QString(), QString());
 
     INSERT(Settings,
            sample_shading_fraction,
-           tr("Sample Shading"),
-           tr("Allows the fragment shader to execute per sample in a multi-sampled fragment "
-              "instead once per fragment. Improves graphics quality at the cost of some performance.\n"
-              "Higher values improve quality more but also reduce performance to a greater extent."));
+           tr("采样着色"),
+           tr("允许片段着色器在多重采样片段中逐个样本执行，而不是每个片段执行一次。"
+              "此设置可提升图形质量，但会牺牲一些性能。\n"
+              "值越高，质量提升幅度越大，但性能也会随之降低。"));
 
     // Renderer (Debug)
 
     // System
     INSERT(Settings,
            rng_seed,
-           tr("RNG Seed"),
-           tr("Controls the seed of the random number generator.\nMainly used for speedrunning "
-              "purposes."));
+           tr("随机数生成器种子"),
+           tr("控制随机数生成器的种子。\n"
+              "主要用于快速通关。"));
     INSERT(Settings, rng_seed_enabled, QString(), QString());
-    INSERT(Settings, device_name, tr("Device Name"), tr("The name of the emulated Switch."));
+    INSERT(Settings, device_name, tr("设备名称"), tr("模拟 Switch 主机的名称。"));
     INSERT(Settings,
            custom_rtc,
-           tr("Custom RTC Date:"),
-           tr("This option allows to change the emulated clock of the Switch.\n"
-              "Can be used to manipulate time in games."));
+           tr("自定义系统时间："),
+           tr("此选项允许更改 Switch 的模拟时钟。\n"
+              "可用于在游戏中操纵时间。"));
     INSERT(Settings, custom_rtc_enabled, QString(), QString());
     INSERT(Settings,
            custom_rtc_offset,
            QStringLiteral(" "),
-           QStringLiteral("The number of seconds from the current unix time"));
+           QStringLiteral("当前 Unix 时间的秒数"));
     INSERT(Settings,
            language_index,
-           tr("Language:"),
-           tr("Note: this can be overridden when region setting is auto-select"));
-    INSERT(Settings, region_index, tr("Region:"), tr("The region of the emulated Switch."));
-    INSERT(Settings, time_zone_index, tr("Time Zone:"), tr("The time zone of the emulated Switch."));
-    INSERT(Settings, sound_index, tr("Sound Output Mode:"), QString());
+           tr("语言："),
+           tr("注意：当 [地区] 设置为 [自动选择] 时，此设置可能会被覆盖。"));
+    INSERT(Settings, region_index, tr("地区："), tr("模拟 Switch 主机的所属地区。"));
+    INSERT(Settings, time_zone_index, tr("时区："), tr("模拟 Switch 主机的所属时区。"));
+    INSERT(Settings, sound_index, tr("声音输出模式："), QString());
     INSERT(Settings,
            use_docked_mode,
            tr("Console Mode:"),
@@ -420,31 +424,31 @@ std::unique_ptr<TranslationMap> InitializeTranslations(QObject* parent)
     // Ui General
     INSERT(UISettings,
            select_user_on_boot,
-           tr("Prompt for user on game boot"),
-           tr("Ask to select a user profile on each boot, useful if multiple people use Eden on "
-              "the same PC."));
+           tr("游戏启动时提示选择用户"),
+           tr("每次启动时要求选择一个用户配置文件，如果多人使用同一设备，"
+              "则非常有用。"));
     INSERT(UISettings,
            pause_when_in_background,
-           tr("Pause emulation when in background"),
-           tr("This setting pauses Eden when focusing other windows."));
+           tr("位于后台时暂停模拟"),
+           tr("当焦点在其它窗口时，此设置会暂停模拟器"));
     INSERT(UISettings,
            confirm_before_stopping,
-           tr("Confirm before stopping emulation"),
-           tr("This setting overrides game prompts asking to confirm stopping the game.\nEnabling "
-              "it bypasses such prompts and directly exits the emulation."));
+           tr("停止模拟时需要确认"),
+           tr("此设置将覆盖游戏中确认停止游戏的提示。\n"
+              "启用此项将绕过游戏中的提示并直接退出模拟。"));
     INSERT(UISettings,
            hide_mouse,
-           tr("Hide mouse on inactivity"),
-           tr("This setting hides the mouse after 2.5s of inactivity."));
+           tr("自动隐藏鼠标光标"),
+           tr("当鼠标停止活动超过 2.5 秒时将隐藏鼠标光标。"));
     INSERT(UISettings,
            controller_applet_disabled,
-           tr("Disable controller applet"),
-           tr("Forcibly disables the use of the controller applet by guests.\nWhen a guest "
-              "attempts to open the controller applet, it is immediately closed."));
+           tr("禁用控制器小程序"),
+           tr("强制禁用来宾程序使用控制器小程序。\n"
+              "当来宾程序尝试打开控制器小程序时，控制器小程序会立即关闭。"));
     INSERT(UISettings,
            check_for_updates,
-           tr("Check for updates"),
-           tr("Whether or not to check for updates upon startup."));
+           tr("检查更新"),
+           tr("是否在启动时检查更新。"));
 
     // Linux
     INSERT(Settings, enable_gamemode, tr("Enable Gamemode"), QString());
@@ -460,7 +464,7 @@ std::unique_ptr<TranslationMap> InitializeTranslations(QObject* parent)
     return translations;
 }
 
-std::unique_ptr<ComboboxTranslationMap> ComboboxEnumeration(QObject* parent)
+std::unique_ptr<ComboboxTranslationMap> ComboboxEnumeration(QWidget* parent)
 {
     std::unique_ptr<ComboboxTranslationMap> translations = std::make_unique<ComboboxTranslationMap>();
     const auto& tr = [&](const char* text, const char* context = "") {
@@ -472,33 +476,33 @@ std::unique_ptr<ComboboxTranslationMap> ComboboxEnumeration(QObject* parent)
     // Intentionally skipping VSyncMode to let the UI fill that one out
     translations->insert({Settings::EnumMetadata<Settings::AppletMode>::Index(),
                           {
-                              PAIR(AppletMode, HLE, tr("Custom frontend")),
-                              PAIR(AppletMode, LLE, tr("Real applet")),
+                              PAIR(AppletMode, HLE, tr("自定义前端")),
+                              PAIR(AppletMode, LLE, tr("真实的小程序")),
                           }});
 
     translations->insert({Settings::EnumMetadata<Settings::SpirvOptimizeMode>::Index(),
                           {
-                              PAIR(SpirvOptimizeMode, Never, tr("Never")),
-                              PAIR(SpirvOptimizeMode, OnLoad, tr("On Load")),
-                              PAIR(SpirvOptimizeMode, Always, tr("Always")),
+                              PAIR(SpirvOptimizeMode, Never, tr("决不")),
+                              PAIR(SpirvOptimizeMode, OnLoad, tr("加载")),
+                              PAIR(SpirvOptimizeMode, Always, tr("总是")),
                           }});
     translations->insert({Settings::EnumMetadata<Settings::AstcDecodeMode>::Index(),
                           {
                               PAIR(AstcDecodeMode, Cpu, tr("CPU")),
                               PAIR(AstcDecodeMode, Gpu, tr("GPU")),
-                              PAIR(AstcDecodeMode, CpuAsynchronous, tr("CPU Asynchronous")),
+                              PAIR(AstcDecodeMode, CpuAsynchronous, tr("CPU 异步")),
                           }});
     translations->insert(
         {Settings::EnumMetadata<Settings::AstcRecompression>::Index(),
          {
-             PAIR(AstcRecompression, Uncompressed, tr("Uncompressed (Best quality)")),
-             PAIR(AstcRecompression, Bc1, tr("BC1 (Low quality)")),
-             PAIR(AstcRecompression, Bc3, tr("BC3 (Medium quality)")),
+             PAIR(AstcRecompression, Uncompressed, tr("不压缩 (最高质量)")),
+             PAIR(AstcRecompression, Bc1, tr("BC1 (低等质量)")),
+             PAIR(AstcRecompression, Bc3, tr("BC3 (中等质量)")),
          }});
     translations->insert({Settings::EnumMetadata<Settings::VramUsageMode>::Index(),
                           {
-                              PAIR(VramUsageMode, Conservative, tr("Conservative")),
-                              PAIR(VramUsageMode, Aggressive, tr("Aggressive")),
+                              PAIR(VramUsageMode, Conservative, tr("保守模式")),
+                              PAIR(VramUsageMode, Aggressive, tr("激进模式")),
                           }});
     translations->insert({Settings::EnumMetadata<Settings::RendererBackend>::Index(),
                           {
@@ -506,34 +510,34 @@ std::unique_ptr<ComboboxTranslationMap> ComboboxEnumeration(QObject* parent)
                               PAIR(RendererBackend, OpenGL, tr("OpenGL")),
 #endif
                               PAIR(RendererBackend, Vulkan, tr("Vulkan")),
-                              PAIR(RendererBackend, Null, tr("Null")),
+                              PAIR(RendererBackend, Null, tr("空")),
                           }});
     translations->insert(
         {Settings::EnumMetadata<Settings::ShaderBackend>::Index(),
          {
              PAIR(ShaderBackend, Glsl, tr("GLSL")),
-             PAIR(ShaderBackend, Glasm, tr("GLASM (Assembly Shaders, NVIDIA Only)")),
-             PAIR(ShaderBackend, SpirV, tr("SPIR-V (Experimental, AMD/Mesa Only)")),
+             PAIR(ShaderBackend, Glasm, tr("GLASM (汇编着色器，仅限 NVIDIA 显卡)")),
+             PAIR(ShaderBackend, SpirV, tr("SPIR-V (实验性，仅限 AMD/Mesa)")),
          }});
     translations->insert({Settings::EnumMetadata<Settings::GpuAccuracy>::Index(),
                           {
-                              PAIR(GpuAccuracy, Normal, tr("Normal")),
-                              PAIR(GpuAccuracy, High, tr("High")),
-                              PAIR(GpuAccuracy, Extreme, tr("Extreme")),
+                              PAIR(GpuAccuracy, Normal, tr("正常")),
+                              PAIR(GpuAccuracy, High, tr("高")),
+                              PAIR(GpuAccuracy, Extreme, tr("极致")),
                           }});
     translations->insert({Settings::EnumMetadata<Settings::DmaAccuracy>::Index(),
                           {
-                              PAIR(DmaAccuracy, Default, tr("Default")),
-                              PAIR(DmaAccuracy, Unsafe, tr("Unsafe (fast)")),
-                              PAIR(DmaAccuracy, Safe, tr("Safe (stable)")),
+                              PAIR(DmaAccuracy, Default, tr("默认")),
+                              PAIR(DmaAccuracy, Unsafe, tr("快速 (不安全)")),
+                              PAIR(DmaAccuracy, Safe, tr("安全 (稳定)")),
                           }});
     translations->insert(
         {Settings::EnumMetadata<Settings::CpuAccuracy>::Index(),
          {
-             PAIR(CpuAccuracy, Auto, tr("Auto")),
-             PAIR(CpuAccuracy, Accurate, tr("Accurate")),
-             PAIR(CpuAccuracy, Unsafe, tr("Unsafe")),
-             PAIR(CpuAccuracy, Paranoid, tr("Paranoid (disables most optimizations)")),
+             PAIR(CpuAccuracy, Auto, tr("自动")),
+             PAIR(CpuAccuracy, Accurate, tr("高精度")),
+             PAIR(CpuAccuracy, Unsafe, tr("低精度")),
+             PAIR(CpuAccuracy, Paranoid, tr("偏执模式 (禁用绝大多数优化项)")),
          }});
     translations->insert({Settings::EnumMetadata<Settings::CpuBackend>::Index(),
                           {
@@ -542,23 +546,23 @@ std::unique_ptr<ComboboxTranslationMap> ComboboxEnumeration(QObject* parent)
                           }});
     translations->insert({Settings::EnumMetadata<Settings::FullscreenMode>::Index(),
                           {
-                              PAIR(FullscreenMode, Borderless, tr("Borderless Windowed")),
-                              PAIR(FullscreenMode, Exclusive, tr("Exclusive Fullscreen")),
+                              PAIR(FullscreenMode, Borderless, tr("无边框窗口")),
+                              PAIR(FullscreenMode, Exclusive, tr("独占全屏")),
                           }});
     translations->insert({Settings::EnumMetadata<Settings::NvdecEmulation>::Index(),
                           {
-                              PAIR(NvdecEmulation, Off, tr("No Video Output")),
-                              PAIR(NvdecEmulation, Cpu, tr("CPU Video Decoding")),
-                              PAIR(NvdecEmulation, Gpu, tr("GPU Video Decoding (Default)")),
+                              PAIR(NvdecEmulation, Off, tr("无视频输出")),
+                              PAIR(NvdecEmulation, Cpu, tr("CPU 视频解码")),
+                              PAIR(NvdecEmulation, Gpu, tr("GPU 视频解码 (默认)")),
                           }});
     translations->insert(
         {Settings::EnumMetadata<Settings::ResolutionSetup>::Index(),
          {
-             PAIR(ResolutionSetup, Res1_4X, tr("0.25X (180p/270p) [EXPERIMENTAL]")),
-             PAIR(ResolutionSetup, Res1_2X, tr("0.5X (360p/540p) [EXPERIMENTAL]")),
-             PAIR(ResolutionSetup, Res3_4X, tr("0.75X (540p/810p) [EXPERIMENTAL]")),
+             PAIR(ResolutionSetup, Res1_4X, tr("0.25X (180p/270p) [实验性]")),
+             PAIR(ResolutionSetup, Res1_2X, tr("0.5X (360p/540p) [实验性]")),
+             PAIR(ResolutionSetup, Res3_4X, tr("0.75X (540p/810p) [实验性]")),
              PAIR(ResolutionSetup, Res1X, tr("1X (720p/1080p)")),
-             PAIR(ResolutionSetup, Res3_2X, tr("1.5X (1080p/1620p) [EXPERIMENTAL]")),
+             PAIR(ResolutionSetup, Res3_2X, tr("1.5X (1080p/1620p) [实验性]")),
              PAIR(ResolutionSetup, Res2X, tr("2X (1440p/2160p)")),
              PAIR(ResolutionSetup, Res3X, tr("3X (2160p/3240p)")),
              PAIR(ResolutionSetup, Res4X, tr("4X (2880p/4320p)")),
@@ -569,32 +573,32 @@ std::unique_ptr<ComboboxTranslationMap> ComboboxEnumeration(QObject* parent)
          }});
     translations->insert({Settings::EnumMetadata<Settings::ScalingFilter>::Index(),
                           {
-                              PAIR(ScalingFilter, NearestNeighbor, tr("Nearest Neighbor")),
-                              PAIR(ScalingFilter, Bilinear, tr("Bilinear")),
-                              PAIR(ScalingFilter, Bicubic, tr("Bicubic")),
-                              PAIR(ScalingFilter, Gaussian, tr("Gaussian")),
-                              PAIR(ScalingFilter, ScaleForce, tr("ScaleForce")),
-                              PAIR(ScalingFilter, Fsr, tr("AMD FidelityFX™️ Super Resolution")),
+                              PAIR(ScalingFilter, NearestNeighbor, tr("近邻取样")),
+                              PAIR(ScalingFilter, Bilinear, tr("双线性过滤")),
+                              PAIR(ScalingFilter, Bicubic, tr("双三线过滤")),
+                              PAIR(ScalingFilter, Gaussian, tr("高斯模糊")),
+                              PAIR(ScalingFilter, ScaleForce, tr("强制缩放")),
+                              PAIR(ScalingFilter, Fsr, tr("AMD FidelityFX™️ 超级分辨率锐画技术")),
                               PAIR(ScalingFilter, Area, tr("Area")),
                           }});
     translations->insert({Settings::EnumMetadata<Settings::AntiAliasing>::Index(),
                           {
-                              PAIR(AntiAliasing, None, tr("None")),
+                              PAIR(AntiAliasing, None, tr("无")),
                               PAIR(AntiAliasing, Fxaa, tr("FXAA")),
                               PAIR(AntiAliasing, Smaa, tr("SMAA")),
                           }});
     translations->insert({Settings::EnumMetadata<Settings::AspectRatio>::Index(),
                           {
-                              PAIR(AspectRatio, R16_9, tr("Default (16:9)")),
-                              PAIR(AspectRatio, R4_3, tr("Force 4:3")),
-                              PAIR(AspectRatio, R21_9, tr("Force 21:9")),
-                              PAIR(AspectRatio, R16_10, tr("Force 16:10")),
-                              PAIR(AspectRatio, Stretch, tr("Stretch to Window")),
+                              PAIR(AspectRatio, R16_9, tr("默认 (16:9)")),
+                              PAIR(AspectRatio, R4_3, tr("强制 4:3")),
+                              PAIR(AspectRatio, R21_9, tr("强制 21:9")),
+                              PAIR(AspectRatio, R16_10, tr("强制 16:10")),
+                              PAIR(AspectRatio, Stretch, tr("拉伸到窗口")),
                           }});
     translations->insert({Settings::EnumMetadata<Settings::AnisotropyMode>::Index(),
                           {
-                              PAIR(AnisotropyMode, Automatic, tr("Automatic")),
-                              PAIR(AnisotropyMode, Default, tr("Default")),
+                              PAIR(AnisotropyMode, Automatic, tr("自动")),
+                              PAIR(AnisotropyMode, Default, tr("默认")),
                               PAIR(AnisotropyMode, X2, tr("2x")),
                               PAIR(AnisotropyMode, X4, tr("4x")),
                               PAIR(AnisotropyMode, X8, tr("8x")),
@@ -609,17 +613,17 @@ std::unique_ptr<ComboboxTranslationMap> ComboboxEnumeration(QObject* parent)
              PAIR(Language, German, tr("German (Deutsch)")),
              PAIR(Language, Italian, tr("Italian (italiano)")),
              PAIR(Language, Spanish, tr("Spanish (español)")),
-             PAIR(Language, Chinese, tr("Chinese")),
+             PAIR(Language, Chinese, tr("中文")),
              PAIR(Language, Korean, tr("Korean (한국어)")),
              PAIR(Language, Dutch, tr("Dutch (Nederlands)")),
              PAIR(Language, Portuguese, tr("Portuguese (português)")),
              PAIR(Language, Russian, tr("Russian (Русский)")),
-             PAIR(Language, Taiwanese, tr("Taiwanese")),
+             PAIR(Language, Taiwanese, tr("台湾中文")),
              PAIR(Language, EnglishBritish, tr("British English")),
              PAIR(Language, FrenchCanadian, tr("Canadian French")),
              PAIR(Language, SpanishLatin, tr("Latin American Spanish")),
-             PAIR(Language, ChineseSimplified, tr("Simplified Chinese")),
-             PAIR(Language, ChineseTraditional, tr("Traditional Chinese (正體中文)")),
+             PAIR(Language, ChineseSimplified, tr("简体中文")),
+             PAIR(Language, ChineseTraditional, tr("繁体中文 (正體中文)")),
              PAIR(Language, PortugueseBrazilian, tr("Brazilian Portuguese (português do Brasil)")),
              PAIR(Language, Serbian, tr("Serbian (српски)")),
          }});
@@ -629,19 +633,19 @@ std::unique_ptr<ComboboxTranslationMap> ComboboxEnumeration(QObject* parent)
                               PAIR(Region, Usa, tr("USA")),
                               PAIR(Region, Europe, tr("Europe")),
                               PAIR(Region, Australia, tr("Australia")),
-                              PAIR(Region, China, tr("China")),
+                              PAIR(Region, China, tr("中国")),
                               PAIR(Region, Korea, tr("Korea")),
-                              PAIR(Region, Taiwan, tr("Taiwan")),
+                              PAIR(Region, Taiwan, tr("台湾")),
                           }});
     translations->insert(
         {Settings::EnumMetadata<Settings::TimeZone>::Index(),
          {
           {static_cast<u32>(Settings::TimeZone::Auto),
-           tr("Auto (%1)", "Auto select time zone")
+           tr("自动 (%1)", "Auto select time zone")
                .arg(QString::fromStdString(
                    Settings::GetTimeZoneString(Settings::TimeZone::Auto)))},
           {static_cast<u32>(Settings::TimeZone::Default),
-           tr("Default (%1)", "Default time zone")
+           tr("默认 (%1)", "Default time zone")
                .arg(QString::fromStdString(Common::TimeZone::GetDefaultTimeZone()))},
           PAIR(TimeZone, Cet, tr("CET")),
           PAIR(TimeZone, Cst6Cdt, tr("CST6CDT")),
@@ -658,7 +662,7 @@ std::unique_ptr<ComboboxTranslationMap> ComboboxEnumeration(QObject* parent)
           PAIR(TimeZone, GmtMinusZero, tr("GMT-0")),
           PAIR(TimeZone, GmtZero, tr("GMT0")),
           PAIR(TimeZone, Greenwich, tr("Greenwich")),
-          PAIR(TimeZone, Hongkong, tr("Hongkong")),
+          PAIR(TimeZone, Hongkong, tr("香港")),
           PAIR(TimeZone, Hst, tr("HST")),
           PAIR(TimeZone, Iceland, tr("Iceland")),
           PAIR(TimeZone, Iran, tr("Iran")),
@@ -675,11 +679,11 @@ std::unique_ptr<ComboboxTranslationMap> ComboboxEnumeration(QObject* parent)
           PAIR(TimeZone, NzChat, tr("NZ-CHAT")),
           PAIR(TimeZone, Poland, tr("Poland")),
           PAIR(TimeZone, Portugal, tr("Portugal")),
-          PAIR(TimeZone, Prc, tr("PRC")),
+          PAIR(TimeZone, Prc, tr("中国标准时间")),
           PAIR(TimeZone, Pst8Pdt, tr("PST8PDT")),
-          PAIR(TimeZone, Roc, tr("ROC")),
+          PAIR(TimeZone, Roc, tr("台湾时间")),
           PAIR(TimeZone, Rok, tr("ROK")),
-          PAIR(TimeZone, Singapore, tr("Singapore")),
+          PAIR(TimeZone, Singapore, tr("新加坡")),
           PAIR(TimeZone, Turkey, tr("Turkey")),
           PAIR(TimeZone, Uct, tr("UCT")),
           PAIR(TimeZone, Universal, tr("Universal")),
@@ -690,17 +694,17 @@ std::unique_ptr<ComboboxTranslationMap> ComboboxEnumeration(QObject* parent)
           }});
     translations->insert({Settings::EnumMetadata<Settings::AudioMode>::Index(),
                           {
-                              PAIR(AudioMode, Mono, tr("Mono")),
-                              PAIR(AudioMode, Stereo, tr("Stereo")),
-                              PAIR(AudioMode, Surround, tr("Surround")),
+                              PAIR(AudioMode, Mono, tr("单声道")),
+                              PAIR(AudioMode, Stereo, tr("立体声")),
+                              PAIR(AudioMode, Surround, tr("环绕声")),
                           }});
     translations->insert({Settings::EnumMetadata<Settings::MemoryLayout>::Index(),
                           {
-                              PAIR(MemoryLayout, Memory_4Gb, tr("4GB DRAM (Default)")),
-                              PAIR(MemoryLayout, Memory_6Gb, tr("6GB DRAM (Unsafe)")),
+                              PAIR(MemoryLayout, Memory_4Gb, tr("4GB DRAM (默认)")),
+                              PAIR(MemoryLayout, Memory_6Gb, tr("6GB DRAM (不安全)")),
                               PAIR(MemoryLayout, Memory_8Gb, tr("8GB DRAM")),
-                              PAIR(MemoryLayout, Memory_10Gb, tr("10GB DRAM (Unsafe)")),
-                              PAIR(MemoryLayout, Memory_12Gb, tr("12GB DRAM (Unsafe)")),
+                              PAIR(MemoryLayout, Memory_10Gb, tr("10GB DRAM (不安全)")),
+                              PAIR(MemoryLayout, Memory_12Gb, tr("12GB DRAM (不安全)")),
                           }});
     translations->insert({Settings::EnumMetadata<Settings::ConsoleMode>::Index(),
                           {
@@ -715,15 +719,15 @@ std::unique_ptr<ComboboxTranslationMap> ComboboxEnumeration(QObject* parent)
     translations->insert(
         {Settings::EnumMetadata<Settings::ConfirmStop>::Index(),
          {
-             PAIR(ConfirmStop, Ask_Always, tr("Always ask (Default)")),
-             PAIR(ConfirmStop, Ask_Based_On_Game, tr("Only if game specifies not to stop")),
-             PAIR(ConfirmStop, Ask_Never, tr("Never ask")),
+             PAIR(ConfirmStop, Ask_Always, tr("总是询问 (默认)")),
+             PAIR(ConfirmStop, Ask_Based_On_Game, tr("仅当游戏不希望停止时")),
+             PAIR(ConfirmStop, Ask_Never, tr("从不询问")),
          }});
     translations->insert({Settings::EnumMetadata<Settings::GpuOverclock>::Index(),
                           {
-                              PAIR(GpuOverclock, Low, tr("Low (128)")),
-                              PAIR(GpuOverclock, Medium, tr("Medium (256)")),
-                              PAIR(GpuOverclock, High, tr("High (512)")),
+                              PAIR(GpuOverclock, Low, tr("低 (128)")),
+                              PAIR(GpuOverclock, Medium, tr("中 (256)")),
+                              PAIR(GpuOverclock, High, tr("高 (512)")),
                           }});
 
 #undef PAIR
