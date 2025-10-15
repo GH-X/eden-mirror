@@ -1,7 +1,7 @@
 #ifndef QMLCONFIG_H
 #define QMLCONFIG_H
 
-#include "qt_common/qt_config.h"
+#include "qt_common/config/qt_config.h"
 
 #include <QObject>
 

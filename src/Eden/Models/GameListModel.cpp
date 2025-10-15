@@ -10,7 +10,7 @@
 #include "core/hle/service/filesystem/filesystem.h"
 #include "hid_core/hid_core.h"
 #include "qt_common/qt_common.h"
-#include "qt_common/qt_meta.h"
+#include "qt_common/util/meta.h"
 
 GameListModel::GameListModel(QObject *parent, QQmlEngine *engine) {
     QHash<int, QByteArray> rez = QStandardItemModel::roleNames();

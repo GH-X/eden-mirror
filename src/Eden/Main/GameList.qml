@@ -65,7 +65,7 @@ Rectangle {
         id: view
 
         anchors {
-            bottom: button.top
+            bottom: parent.bottom
             left: parent.left
             right: parent.right
             top: parent.top

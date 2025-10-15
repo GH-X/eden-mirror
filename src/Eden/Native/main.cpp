@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
     QCoreApplication::setOrganizationName(QStringLiteral("eden-emu"));
     QCoreApplication::setApplicationName(QStringLiteral("eden"));
     QApplication::setDesktopFileName(QStringLiteral("org.eden-emu.eden"));
-    QGuiApplication::setWindowIcon(QIcon(":/icons/eden.svg"));
+    QGuiApplication::setWindowIcon(QIcon(QStringLiteral(":/icons/eden.svg")));
 
     /// QtCommon
     QtCommon::Init(new QWidget);
