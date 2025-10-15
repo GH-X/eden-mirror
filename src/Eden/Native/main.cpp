@@ -36,9 +36,6 @@ int main(int argc, char *argv[])
 
     /// Expose Enums
 
-    // Core
-    std::unique_ptr<Core::System> system = std::make_unique<Core::System>();
-
     /// CONTEXT
     QQmlApplicationEngine engine;
     auto ctx = engine.rootContext();
@@ -49,7 +46,7 @@ int main(int argc, char *argv[])
     qmlRegisterUncreatableMetaObject(SettingsCategories::staticMetaObject, "Eden.Interface", 1, 0, "SettingsCategories", QString());
 
     // Directory List
-    GameListModel *gameListModel = new GameListModel(&app, &engine);
+    GameListModel *gameListModel = new GameListModel(&app, &engine, config);
     ctx->setContextProperty(QStringLiteral("EdenGameList"), gameListModel);
 
     // Settings Interface

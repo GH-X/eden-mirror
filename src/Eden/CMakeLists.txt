@@ -11,6 +11,7 @@ include(EdenModule)
 include_directories(AFTER "${CMAKE_CURRENT_SOURCE_DIR}")
 
 add_subdirectory(Interface)
+add_subdirectory(Graphics)
 add_subdirectory(Models)
 
 add_subdirectory(Config)

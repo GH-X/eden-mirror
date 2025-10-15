@@ -47,6 +47,9 @@ void InstallKeys();
 void VerifyGameContents(const std::string &game_path);
 void VerifyInstalledContents();
 
+void RemoveCachedContents();
+void ConfigureFilesystemProvider(const std::string &filepath);
+
 void ClearDataDir(FrontendCommon::DataManager::DataDir dir, const std::string &user_id = "");
 void ExportDataDir(FrontendCommon::DataManager::DataDir dir,
                    const std::string &user_id = "",

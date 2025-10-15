@@ -5,7 +5,9 @@
 #include <QObject>
 #include <QQmlEngine>
 #include <QStandardItemModel>
+#include "Interface/QMLConfig.h"
 #include "qt_common/config/uisettings.h"
+#include <core/hle/service/am/applet_manager.h>
 
 typedef struct Game {
     QString absPath;
@@ -27,7 +29,12 @@ public:
         ICON
     };
 
-    GameListModel(QObject *parent, QQmlEngine *engine);
+    enum class StartGameType {
+        Normal, // Can use custom configuration
+        Global, // Only uses global configuration
+    };
+
+    GameListModel(QObject *parent, QQmlEngine *engine, QMLConfig *config);
 
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
 
@@ -38,6 +45,10 @@ public:
 
     void RefreshGameDirectory();
 
+    void BootGame(const QString &filename,
+                  Service::AM::FrontendAppletParameters params,
+                  StartGameType type);
+    bool LoadROM(const QString &filename, Service::AM::FrontendAppletParameters params);
 private slots:
     void WorkerEvent();
 
@@ -48,6 +59,8 @@ private:
     std::unique_ptr<GameListWorker> current_worker;
 
     GameIconProvider *m_provider;
+
+    QMLConfig *m_config;
 };
 
 #endif // GAMELISTMODEL_H

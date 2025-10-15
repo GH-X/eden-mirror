@@ -10,6 +10,8 @@ add_library(glad
 create_target_directory_groups(glad)
 target_include_directories(glad PUBLIC "include/")
 
+add_library(glad::glad ALIAS glad)
+
 if ("${CMAKE_SYSTEM_NAME}" MATCHES "Linux")
     target_link_libraries(glad PRIVATE dl)
 endif()

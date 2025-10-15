@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 #include "qt_common/util/content.h"
+#include "core/file_sys/card_image.h"
 #include "qt_common/util/game.h"
 
 #include "common/fs/fs.h"
@@ -539,6 +540,62 @@ void ImportDataDir(FrontendCommon::DataManager::DataDir data_dir,
 
         watcher->setFuture(future);
     });
+}
+
+
+void RemoveCachedContents()
+{
+    const auto cache_dir = Common::FS::GetEdenPath(Common::FS::EdenPath::CacheDir);
+    const auto offline_fonts = cache_dir / "fonts";
+    const auto offline_manual = cache_dir / "offline_web_applet_manual";
+    const auto offline_legal_information = cache_dir / "offline_web_applet_legal_information";
+    const auto offline_system_data = cache_dir / "offline_web_applet_system_data";
+
+    Common::FS::RemoveDirRecursively(offline_fonts);
+    Common::FS::RemoveDirRecursively(offline_manual);
+    Common::FS::RemoveDirRecursively(offline_legal_information);
+    Common::FS::RemoveDirRecursively(offline_system_data);
+}
+
+void ConfigureFilesystemProvider(const std::string& filepath)
+{
+    // Ensure all NCAs are registered before launching the game
+    const auto file = QtCommon::vfs->OpenFile(filepath, FileSys::OpenMode::Read);
+    if (!file) {
+        return;
+    }
+
+    auto loader = Loader::GetLoader(*QtCommon::system, file);
+    if (!loader) {
+        return;
+    }
+
+    const auto file_type = loader->GetFileType();
+    if (file_type == Loader::FileType::Unknown || file_type == Loader::FileType::Error) {
+        return;
+    }
+
+    u64 program_id = 0;
+    const auto res2 = loader->ReadProgramId(program_id);
+    if (res2 == Loader::ResultStatus::Success && file_type == Loader::FileType::NCA) {
+        QtCommon::provider->AddEntry(FileSys::TitleType::Application,
+                                     FileSys::GetCRTypeFromNCAType(FileSys::NCA{file}.GetType()),
+                                     program_id,
+                                     file);
+    } else if (res2 == Loader::ResultStatus::Success
+               && (file_type == Loader::FileType::XCI || file_type == Loader::FileType::NSP)) {
+        const auto nsp = file_type == Loader::FileType::NSP
+                             ? std::make_shared<FileSys::NSP>(file)
+                             : FileSys::XCI{file}.GetSecurePartitionNSP();
+        for (const auto& title : nsp->GetNCAs()) {
+            for (const auto& entry : title.second) {
+                QtCommon::provider->AddEntry(entry.first.first,
+                                             entry.first.second,
+                                             title.first,
+                                             entry.second->GetBaseFile());
+            }
+        }
+    }
 }
 
 } // namespace QtCommon::Content

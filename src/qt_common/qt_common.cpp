@@ -3,11 +3,18 @@
 
 #include "qt_common.h"
 #include "common/fs/fs.h"
+#include "common/fs/path_util.h"
+#include "common/logging/backend.h"
+#include "core/hle/service/filesystem/filesystem.h"
+#include "hid_core/hid_core.h"
+#include "network/network.h"
 
 #include <QGuiApplication>
 #include <QStringLiteral>
 #include "common/logging/log.h"
 #include "core/frontend/emu_window.h"
+#include "qt_common/util/content.h"
+#include "qt_common/util/meta.h"
 
 #include <QFile>
 
@@ -105,6 +112,29 @@ void Init(QObject* root)
     rootObject = root;
     vfs = std::make_unique<FileSys::RealVfsFilesystem>();
     provider = std::make_unique<FileSys::ManualContentProvider>();
+
+    system->Initialize();
+
+    // setup common stuffs
+    Common::FS::CreateEdenPaths();
+    Common::Log::Initialize();
+    Common::Log::Start();
+
+    Network::Init();
+    Meta::RegisterMetaTypes();
+
+    system->HIDCore().ReloadInputDevices();
+
+    system->SetContentProvider(std::make_unique<FileSys::ContentProviderUnion>());
+    system->RegisterContentProvider(FileSys::ContentProviderUnionSlot::FrontendManual,
+                                              provider.get());
+    system->GetFileSystemController().CreateFactories(*vfs);
+
+    // Remove cached contents generated during the previous session
+    Content::RemoveCachedContents();
+
+    // Check for orphaned profiles and reset profile data if necessary
+    Content::FixProfiles();
 }
 
 std::filesystem::path GetEdenCommand() {

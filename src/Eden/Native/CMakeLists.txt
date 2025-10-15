@@ -36,7 +36,7 @@ target_link_libraries(eden
 )
 
 target_link_libraries(eden PRIVATE common core input_common frontend_common qt_common network video_core)
-target_link_libraries(eden PRIVATE Boost::headers glad fmt)
+target_link_libraries(eden PRIVATE Boost::headers glad::glad fmt)
 target_link_libraries(eden PRIVATE ${PLATFORM_LIBRARIES} Threads::Threads)
 
 target_link_libraries(eden PRIVATE Vulkan::Headers)

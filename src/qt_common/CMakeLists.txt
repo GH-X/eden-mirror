@@ -1,6 +1,9 @@
 # SPDX-FileCopyrightText: Copyright 2025 Eden Emulator Project
 # SPDX-License-Identifier: GPL-3.0-or-later
 
+find_package(Qt6 REQUIRED COMPONENTS Core)
+find_package(Qt6 REQUIRED COMPONENTS Quick)
+
 add_library(qt_common STATIC
     qt_common.h
     qt_common.cpp
@@ -27,6 +30,10 @@ add_library(qt_common STATIC
     qt_compat.h
 
     discord/discord.h
+    os.h os.cpp
+    emu/emu_thread.h emu/emu_thread.cpp
+    emu/graphics_contexts.h emu/graphics_contexts.cpp
+
 )
 
 create_target_directory_groups(qt_common)
@@ -76,7 +83,7 @@ endif()
 if (UNIX AND NOT APPLE)
     if (TARGET Qt6::GuiPrivate)
         target_link_libraries(qt_common PRIVATE Qt6::GuiPrivate)
-    else()
+else()
         target_include_directories(qt_common PRIVATE ${Qt6Gui_PRIVATE_INCLUDE_DIRS})
     endif()
 endif()
