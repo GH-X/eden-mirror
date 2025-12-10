@@ -2,6 +2,8 @@
 
 Use this guide when you need to determine the connection information for the Public Multiplayer Lobby you are connected to.
 
+**Click [Here](https://evilperson1337.notion.site/Finding-the-Server-Information-for-a-Multiplayer-Room-2c557c2edaf6809e94e8ed3429b9eb26) for a version of this guide with images & visual elements.**
+
 ---
 
 ### Pre-Requisites
