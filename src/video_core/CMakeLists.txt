@@ -5,6 +5,7 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 
 add_subdirectory(host_shaders)
+add_subdirectory(gpu_logging)
 
 if(LIBVA_FOUND)
     set_source_files_properties(host1x/ffmpeg/ffmpeg.cpp
@@ -313,7 +314,7 @@ add_library(video_core STATIC
 )
 
 target_link_libraries(video_core PUBLIC common core)
-target_link_libraries(video_core PUBLIC glad shader_recompiler stb bc_decoder)
+target_link_libraries(video_core PUBLIC glad shader_recompiler stb bc_decoder gpu_logging)
 
 if (YUZU_USE_EXTERNAL_FFMPEG)
     add_dependencies(video_core ffmpeg-build)
