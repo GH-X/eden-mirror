@@ -3,6 +3,8 @@
 
 #pragma once
 
+#ifdef ANDROID
+
 #include <string>
 
 namespace GPU::Logging::Freedreno {
@@ -26,3 +28,5 @@ private:
 };
 
 } // namespace GPU::Logging::Freedreno
+
+#endif // ANDROID
