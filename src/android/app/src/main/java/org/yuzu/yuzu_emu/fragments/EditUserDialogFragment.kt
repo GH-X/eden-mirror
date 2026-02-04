@@ -34,7 +34,7 @@ import kotlinx.coroutines.withContext
 import org.yuzu.yuzu_emu.NativeLibrary
 import org.yuzu.yuzu_emu.R
 import org.yuzu.yuzu_emu.adapters.FirmwareAvatarAdapter
-import org.yuzu.yuzu_emu.databinding.FragmentNewUserDialogBinding
+import org.yuzu.yuzu_emu.databinding.FragmentEditUserDialogBinding
 import org.yuzu.yuzu_emu.model.HomeViewModel
 import org.yuzu.yuzu_emu.model.ProfileUtils
 import org.yuzu.yuzu_emu.model.UserProfile
@@ -44,7 +44,7 @@ import androidx.core.graphics.scale
 import androidx.core.graphics.createBitmap
 
 class EditUserDialogFragment : Fragment() {
-    private var _binding: FragmentNewUserDialogBinding? = null
+    private var _binding: FragmentEditUserDialogBinding? = null
     private val binding get() = _binding!!
 
     private val homeViewModel: HomeViewModel by activityViewModels()
@@ -96,7 +96,7 @@ class EditUserDialogFragment : Fragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentNewUserDialogBinding.inflate(layoutInflater)
+        _binding = FragmentEditUserDialogBinding.inflate(layoutInflater)
         return binding.root
     }
 
@@ -355,14 +355,21 @@ class EditUserDialogFragment : Fragment() {
                 selectedFirmwareAvatar != null -> selectedFirmwareAvatar
                 selectedImageUri != null -> {
                     val bitmap = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-                        val source = ImageDecoder.createSource(requireContext().contentResolver, selectedImageUri!!)
+                        val source = ImageDecoder.createSource(
+                            requireContext().contentResolver,
+                            selectedImageUri!!
+                        )
                         ImageDecoder.decodeBitmap(source)
                     } else {
                         @Suppress("DEPRECATION")
-                        MediaStore.Images.Media.getBitmap(requireContext().contentResolver, selectedImageUri)
+                        MediaStore.Images.Media.getBitmap(
+                            requireContext().contentResolver,
+                            selectedImageUri
+                        )
                     }
                     centerCropBitmap(bitmap, 256, 256)
                 }
+
                 else -> null
             }
 
@@ -411,25 +418,39 @@ class EditUserDialogFragment : Fragment() {
             .show()
     }
 
-    private fun setInsets() {
+    private fun setInsets() =
         ViewCompat.setOnApplyWindowInsetsListener(
             binding.root
         ) { _: View, windowInsets: WindowInsetsCompat ->
             val barInsets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
             val cutoutInsets = windowInsets.getInsets(WindowInsetsCompat.Type.displayCutout())
 
-            val leftInsets = barInsets.left + cutoutInsets.left
-            val rightInsets = barInsets.right + cutoutInsets.right
+            val leftInset = barInsets.left + cutoutInsets.left
+            val topInset =  cutoutInsets.top
+            val rightInset = barInsets.right + cutoutInsets.right
+            val bottomInset = barInsets.bottom + cutoutInsets.bottom
 
-            binding.buttonLayout.updatePadding(
-                left = leftInsets + 16,
-                right = rightInsets + 16,
-                bottom = barInsets.bottom + 16
+            binding.appbar.updatePadding(
+                left = leftInset,
+                top = topInset,
+                right = rightInset
+            )
+
+            binding.scrollContent.updatePadding(
+                left = leftInset,
+                right = rightInset
+            )
+
+            binding.buttonContainer.updatePadding(
+                left = leftInset,
+                right = rightInset,
+                bottom = bottomInset
             )
 
             windowInsets
         }
-    }
+
+
 
     override fun onDestroyView() {
         super.onDestroyView()
