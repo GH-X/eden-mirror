@@ -49,6 +49,7 @@
 #include "common/settings.h"
 #include "common/string_util.h"
 #include "frontend_common/play_time_manager.h"
+#include "core/constants.h"
 #include "core/core.h"
 #include "core/cpu_manager.h"
 #include "core/crypto/key_manager.h"
@@ -2069,6 +2070,17 @@ JNIEXPORT jbyteArray JNICALL Java_org_yuzu_yuzu_1emu_NativeLibrary_getFirmwareAv
     }
 
     return nullptr;
+}
+
+JNIEXPORT jbyteArray JNICALL Java_org_yuzu_yuzu_1emu_NativeLibrary_getDefaultAccountBackupJpeg(
+        JNIEnv* env,
+        [[maybe_unused]] jobject obj) {
+    jbyteArray result = env->NewByteArray(Core::Constants::ACCOUNT_BACKUP_JPEG.size());
+    if (result) {
+        env->SetByteArrayRegion(result, 0, Core::Constants::ACCOUNT_BACKUP_JPEG.size(),
+            reinterpret_cast<const jbyte*>(Core::Constants::ACCOUNT_BACKUP_JPEG.data()));
+    }
+    return result;
 }
 
 } // extern "C"

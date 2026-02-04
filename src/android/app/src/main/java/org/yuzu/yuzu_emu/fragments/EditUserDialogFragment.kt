@@ -298,9 +298,10 @@ class EditUserDialogFragment : Fragment() {
     }
 
     private fun loadDefaultAvatar() {
-        val bitmap = createBitmap(256, 256)
-        bitmap.eraseColor(android.graphics.Color.BLACK)
+        val jpegData = NativeLibrary.getDefaultAccountBackupJpeg()
+        val bitmap = BitmapFactory.decodeByteArray(jpegData, 0, jpegData.size)
         binding.imageUserAvatar.setImageBitmap(bitmap)
+
         hasCustomImage = false
         binding.buttonRevertImage.visibility = View.GONE
     }

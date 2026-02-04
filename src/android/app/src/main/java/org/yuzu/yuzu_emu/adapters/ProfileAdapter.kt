@@ -14,6 +14,7 @@ import org.yuzu.yuzu_emu.R
 import org.yuzu.yuzu_emu.databinding.ListItemProfileBinding
 import org.yuzu.yuzu_emu.model.UserProfile
 import java.io.File
+import org.yuzu.yuzu_emu.NativeLibrary
 
 class ProfileAdapter(
     private val onProfileClick: (UserProfile) -> Unit,
@@ -69,7 +70,9 @@ class ProfileAdapter(
                 val bitmap = BitmapFactory.decodeFile(profile.imagePath)
                 binding.imageAvatar.setImageBitmap(bitmap)
             } else {
-                binding.imageAvatar.setImageResource(R.drawable.ic_account_circle)
+                    val jpegData = NativeLibrary.getDefaultAccountBackupJpeg()
+                    val bitmap = BitmapFactory.decodeByteArray(jpegData, 0, jpegData.size)
+                    binding.imageAvatar.setImageBitmap(bitmap)
             }
 
             if (profile.uuid == currentUserUUID) {

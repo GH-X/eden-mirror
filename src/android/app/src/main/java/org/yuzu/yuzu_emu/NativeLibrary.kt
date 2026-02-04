@@ -632,4 +632,5 @@ object NativeLibrary {
     external fun reloadProfiles()
     external fun getFirmwareAvatarCount(): Int
     external fun getFirmwareAvatarImage(index: Int): ByteArray?
+    external fun getDefaultAccountBackupJpeg(): ByteArray
 }
