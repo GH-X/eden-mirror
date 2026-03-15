@@ -674,6 +674,7 @@ std::unique_ptr<ComboboxTranslationMap> ComboboxEnumeration(QObject* parent) {
                               PAIR(GpuUnswizzle, Normal, tr("Normal (16 MB)")),
                               PAIR(GpuUnswizzle, Medium, tr("Medium (32 MB)")),
                               PAIR(GpuUnswizzle, High, tr("High (64 MB)")),
+                              PAIR(GpuUnswizzle, Off, tr("Off")),
                           }});
     translations->insert({Settings::EnumMetadata<Settings::GpuUnswizzleChunk>::Index(),
                           {
@@ -682,6 +683,7 @@ std::unique_ptr<ComboboxTranslationMap> ComboboxEnumeration(QObject* parent) {
                               PAIR(GpuUnswizzleChunk, Normal, tr("Normal (128)")),
                               PAIR(GpuUnswizzleChunk, Medium, tr("Medium (256)")),
                               PAIR(GpuUnswizzleChunk, High, tr("High (512)")),
+                              PAIR(GpuUnswizzleChunk, Off, tr("Off")),
                           }});
 
     translations->insert({Settings::EnumMetadata<Settings::ExtendedDynamicState>::Index(),
