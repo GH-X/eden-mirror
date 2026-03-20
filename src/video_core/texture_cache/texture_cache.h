@@ -25,6 +25,8 @@
 #include "video_core/texture_cache/util.h"
 #include "video_core/textures/decoders.h"
 
+#include "common/tracy_instrumentation.h"
+
 namespace VideoCommon {
 
 using Tegra::Texture::TICEntry;
@@ -275,12 +277,14 @@ void TextureCache<P>::MarkModification(ImageId id) noexcept {
 template <class P>
 template <bool has_blacklists>
 void TextureCache<P>::FillGraphicsImageViews(std::span<ImageViewInOut> views) {
+    TRACY_ZONE_SCOPED
     FillImageViews<has_blacklists>(channel_state->graphics_image_table,
                                    channel_state->graphics_image_view_ids, views);
 }
 
 template <class P>
 void TextureCache<P>::FillComputeImageViews(std::span<ImageViewInOut> views) {
+    TRACY_ZONE_SCOPED
     FillImageViews<true>(channel_state->compute_image_table, channel_state->compute_image_view_ids,
                          views);
 }
@@ -442,6 +446,8 @@ void TextureCache<P>::SynchronizeComputeDescriptors() {
 
 template <class P>
 bool TextureCache<P>::RescaleRenderTargets() {
+    TRACY_ZONE_SCOPED
+
     auto& flags = maxwell3d->dirty.flags;
     u32 scale_rating = 0;
     bool rescaled = false;
@@ -538,6 +544,8 @@ bool TextureCache<P>::RescaleRenderTargets() {
 
 template <class P>
 void TextureCache<P>::UpdateRenderTargets(bool is_clear) {
+    TRACY_ZONE_SCOPED
+
     using namespace VideoCommon::Dirty;
     auto& flags = maxwell3d->dirty.flags;
     if (!flags[Dirty::RenderTargets]) {
@@ -549,6 +557,7 @@ void TextureCache<P>::UpdateRenderTargets(bool is_clear) {
         PrepareImageView(depth_buffer_id, true, is_clear && IsFullClear(depth_buffer_id));
         return;
     }
+    TRACY_ZONE_NAMEDN(_tracy_zone, "UpdateRenderTargets_Dirty")
 
     const VideoCommon::RenderTargets previous_render_targets = render_targets;
     const bool rescaled = RescaleRenderTargets();
@@ -1200,6 +1209,8 @@ void TextureCache<P>::RefreshContents(Image& image, ImageId image_id) {
         return;
     }
 
+    TRACY_ZONE_SCOPEDN("RefreshContents_CpuModified")
+
     TrackImage(image, image_id);
 
     if (image.info.num_samples > 1 && !runtime.CanUploadMSAA()) {
@@ -1608,6 +1619,8 @@ bool TextureCache<P>::ScaleDown(Image& image) {
 template <class P>
 ImageId TextureCache<P>::InsertImage(const ImageInfo& info, GPUVAddr gpu_addr,
                                      RelaxedOptions options) {
+    TRACY_ZONE_SCOPED
+
     std::optional<DAddr> cpu_addr = gpu_memory->GpuToCpuAddress(gpu_addr);
     if (!cpu_addr) {
         const auto size = CalculateGuestSizeInBytes(info);
@@ -2689,6 +2702,8 @@ void TextureCache<P>::SynchronizeAliases(ImageId image_id) {
     if (aliased_images.empty()) {
         return;
     }
+    TRACY_ZONE_SCOPEDN("SynchronizeAliases_has_modified_aliases")
+
     const bool can_rescale = ImageCanRescale(image);
     if (any_rescaled) {
         if (can_rescale) {

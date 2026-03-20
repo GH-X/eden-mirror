@@ -17,6 +17,8 @@
 #include "video_core/texture_cache/image_view_info.h"
 #include "video_core/texture_cache/util.h"
 
+#include "common/tracy_instrumentation.h"
+
 namespace VideoCommon {
 
 using VideoCore::Surface::DefaultBlockHeight;
@@ -159,6 +161,8 @@ void ImageBase::CheckAliasState() {
 }
 
 bool AddImageAlias(ImageBase& lhs, ImageBase& rhs, ImageId lhs_id, ImageId rhs_id) {
+    TRACY_ZONE_SCOPED
+
     static constexpr auto OPTIONS = RelaxedOptions::Size | RelaxedOptions::Format;
     ASSERT(lhs.info.type == rhs.info.type);
     std::optional<SubresourceBase> base;

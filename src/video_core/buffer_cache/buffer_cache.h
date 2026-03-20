@@ -16,6 +16,8 @@
 #include "video_core/host1x/gpu_device_memory_manager.h"
 #include "video_core/texture_cache/util.h"
 
+#include "common/tracy_instrumentation.h"
+
 namespace VideoCommon {
 
 using Core::DEVICE_PAGESIZE;
@@ -337,6 +339,7 @@ void BufferCache<P>::DisableGraphicsUniformBuffer(size_t stage, u32 index) {
 
 template <class P>
 void BufferCache<P>::UpdateGraphicsBuffers(bool is_indexed) {
+    TRACY_ZONE_SCOPED
     do {
         channel_state->has_deleted_buffers = false;
         DoUpdateGraphicsBuffers(is_indexed);
@@ -353,6 +356,8 @@ void BufferCache<P>::UpdateComputeBuffers() {
 
 template <class P>
 void BufferCache<P>::BindHostGeometryBuffers(bool is_indexed) {
+    TRACY_ZONE_SCOPED
+
     if (is_indexed) {
         BindHostIndexBuffer();
     } else if constexpr (!HAS_FULL_INDEX_AND_PRIMITIVE_SUPPORT) {
@@ -372,6 +377,8 @@ void BufferCache<P>::BindHostGeometryBuffers(bool is_indexed) {
 
 template <class P>
 void BufferCache<P>::BindHostStageBuffers(size_t stage) {
+    TRACY_ZONE_SCOPED
+
     BindHostGraphicsUniformBuffers(stage);
     BindHostGraphicsStorageBuffers(stage);
     BindHostGraphicsTextureBuffers(stage);

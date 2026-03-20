@@ -17,6 +17,8 @@
 #include "video_core/host1x/host1x.h"
 #include "video_core/renderer_base.h"
 
+#include "common/tracy_instrumentation.h"
+
 namespace VideoCommon::GPUThread {
 
 /// Runs the GPU thread
@@ -37,13 +39,20 @@ static void RunThread(std::stop_token stop_token, Core::System& system,
         if (stop_token.stop_requested()) {
             break;
         }
+
+        //TRACY_ZONE_SCOPEDN("Process Gpu Command");
+
         if (auto* submit_list = std::get_if<SubmitListCommand>(&next.data)) {
+            TRACY_ZONE_SCOPEDN("Push Command List");
             scheduler.Push(submit_list->channel, std::move(submit_list->entries));
         } else if (std::holds_alternative<GPUTickCommand>(next.data)) {
+            TRACY_ZONE_SCOPEDN("TickWork");
             system.GPU().TickWork();
         } else if (const auto* flush = std::get_if<FlushRegionCommand>(&next.data)) {
+            TRACY_ZONE_SCOPEDN("FlushRegion");
             rasterizer->FlushRegion(flush->addr, flush->size);
         } else if (const auto* invalidate = std::get_if<InvalidateRegionCommand>(&next.data)) {
+            TRACY_ZONE_SCOPEDN("OnCacheInvalidation");
             rasterizer->OnCacheInvalidation(invalidate->addr, invalidate->size);
         } else {
             ASSERT(false);

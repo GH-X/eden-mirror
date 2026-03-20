@@ -20,6 +20,8 @@
 #include "video_core/rasterizer_interface.h"
 #include "video_core/textures/texture.h"
 
+#include "common/tracy_instrumentation.h"
+
 namespace Tegra::Engines {
 
 /// First register id that is actually a Macro call.
@@ -324,6 +326,10 @@ void Maxwell3D::ProcessDirtyRegisters(u32 method, u32 argument) {
         dirty.flags[flag0] = true;
         if (flag1 != flag0)
             dirty.flags[flag1] = true;
+
+        if (flag0 == VideoCommon::Dirty::RenderTargets || flag1 == VideoCommon::Dirty::RenderTargets) {
+            TRACY_MSG_C("BindRendertarget", 0x4040ff);
+        }
     }
 }
 

@@ -14,6 +14,8 @@
 #include "core/hle/kernel/physical_core.h"
 #include "core/hle/kernel/svc.h"
 
+#include "common/tracy_instrumentation.h"
+
 namespace Kernel {
 
 PhysicalCore::PhysicalCore(KernelCore& kernel, std::size_t core_index)
@@ -217,6 +219,10 @@ void PhysicalCore::LogBacktrace() {
 }
 
 void PhysicalCore::Idle() {
+#if TRACY_ENABLE
+    ZoneScopedC(0xc0c0c0);
+#endif
+
     std::unique_lock lk{m_guard};
     m_on_interrupt.wait(lk, [this] { return m_is_interrupted; });
 }

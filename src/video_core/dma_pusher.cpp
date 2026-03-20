@@ -18,6 +18,8 @@
 #include <intrin.h>
 #endif
 
+#include "common/tracy_instrumentation.h"
+
 namespace Tegra {
 
 constexpr u32 MacroRegistersStart = 0xE00;
@@ -31,6 +33,8 @@ DmaPusher::DmaPusher(Core::System& system_, GPU& gpu_, MemoryManager& memory_man
 DmaPusher::~DmaPusher() = default;
 
 void DmaPusher::DispatchCalls() {
+    TRACY_ZONE_SCOPED
+
 
     dma_pushbuffer_subindex = 0;
 
@@ -46,6 +50,8 @@ void DmaPusher::DispatchCalls() {
 }
 
 bool DmaPusher::Step() {
+    TRACY_ZONE_SCOPED
+
     if (!ib_enable || dma_pushbuffer.empty()) {
         return false;
     }

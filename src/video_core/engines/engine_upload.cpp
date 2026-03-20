@@ -14,6 +14,8 @@
 #include "video_core/rasterizer_interface.h"
 #include "video_core/textures/decoders.h"
 
+#include "common/tracy_instrumentation.h"
+
 namespace Tegra::Engines::Upload {
 
 State::State(MemoryManager& memory_manager_, Registers& regs_)
@@ -26,6 +28,8 @@ void State::BindRasterizer(VideoCore::RasterizerInterface* rasterizer_) {
 }
 
 void State::ProcessExec(const bool is_linear_) {
+    TRACY_ZONE_SCOPED
+
     write_offset = 0;
     copy_size = regs.line_length_in * regs.line_count;
     inner_buffer.resize_destructive(copy_size);
@@ -33,6 +37,8 @@ void State::ProcessExec(const bool is_linear_) {
 }
 
 void State::ProcessData(const u32 data, const bool is_last_call) {
+    TRACY_ZONE_SCOPED
+
     const u32 sub_copy_size = (std::min)(4U, copy_size - write_offset);
     std::memcpy(&inner_buffer[write_offset], &data, sub_copy_size);
     write_offset += sub_copy_size;

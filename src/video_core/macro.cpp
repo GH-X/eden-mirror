@@ -45,6 +45,8 @@
 #endif
 #include "video_core/engines/maxwell_3d.h"
 
+#include "common/tracy_instrumentation.h"
+
 namespace Tegra {
 
 using Maxwell3D = Engines::Maxwell3D;
@@ -77,6 +79,9 @@ bool IsTopologySafe(Maxwell3D::Regs::PrimitiveTopology topology) {
 } // Anonymous namespace
 
 void HLE_DrawArraysIndirect::Execute(Engines::Maxwell3D& maxwell3d, std::span<const u32> parameters, [[maybe_unused]] u32 method) {
+    //TRACY_ZONE_SCOPED
+    TRACY_MSG_C("DrawArraysIndirect", 0xff4040)
+
     auto topology = static_cast<Maxwell3D::Regs::PrimitiveTopology>(parameters[0]);
     if (!maxwell3d.AnyParametersDirty() || !IsTopologySafe(topology)) {
         Fallback(maxwell3d, parameters);
@@ -136,6 +141,9 @@ void HLE_DrawArraysIndirect::Fallback(Engines::Maxwell3D& maxwell3d, std::span<c
 }
 
 void HLE_DrawIndexedIndirect::Execute(Engines::Maxwell3D& maxwell3d, std::span<const u32> parameters, [[maybe_unused]] u32 method) {
+    //TRACY_ZONE_SCOPED
+    TRACY_MSG_C("DrawIndexedIndirect", 0xff4040)
+
     auto topology = static_cast<Maxwell3D::Regs::PrimitiveTopology>(parameters[0]);
     if (!maxwell3d.AnyParametersDirty() || !IsTopologySafe(topology)) {
         Fallback(maxwell3d, parameters);
@@ -197,6 +205,9 @@ void HLE_DrawIndexedIndirect::Fallback(Engines::Maxwell3D& maxwell3d, std::span<
     }
 }
 void HLE_MultiLayerClear::Execute(Engines::Maxwell3D& maxwell3d, std::span<const u32> parameters, [[maybe_unused]] u32 method) {
+    //TRACY_ZONE_SCOPED
+    TRACY_MSG_C("MultiLayerClear", 0xff4040)
+
     maxwell3d.RefreshParameters();
     ASSERT(parameters.size() == 1);
 
@@ -209,6 +220,9 @@ void HLE_MultiLayerClear::Execute(Engines::Maxwell3D& maxwell3d, std::span<const
     maxwell3d.draw_manager->Clear(num_layers);
 }
 void HLE_MultiDrawIndexedIndirectCount::Execute(Engines::Maxwell3D& maxwell3d, std::span<const u32> parameters, [[maybe_unused]] u32 method) {
+    //TRACY_ZONE_SCOPED
+    TRACY_MSG_C("MultiDrawIndexedIndirectCount", 0xff4040)
+
     const auto topology = Maxwell3D::Regs::PrimitiveTopology(parameters[2]);
     if (!IsTopologySafe(topology)) {
         Fallback(maxwell3d, parameters);
@@ -284,6 +298,9 @@ void HLE_MultiDrawIndexedIndirectCount::Fallback(Engines::Maxwell3D& maxwell3d, 
     }
 }
 void HLE_DrawIndirectByteCount::Execute(Engines::Maxwell3D& maxwell3d, std::span<const u32> parameters, [[maybe_unused]] u32 method) {
+    //TRACY_ZONE_SCOPED
+    TRACY_MSG_C("DrawIndirectByteCount", 0xff4040)
+
     const bool force = maxwell3d.Rasterizer().HasDrawTransformFeedback();
     auto topology = Maxwell3D::Regs::PrimitiveTopology(parameters[0] & 0xFFFFU);
     if (!force && (!maxwell3d.AnyParametersDirty() || !IsTopologySafe(topology))) {
@@ -316,6 +333,9 @@ void HLE_DrawIndirectByteCount::Fallback(Engines::Maxwell3D& maxwell3d, std::spa
         maxwell3d.regs.draw_auto_byte_count / maxwell3d.regs.draw_auto_stride, 0, 1);
 }
 void HLE_C713C83D8F63CCF3::Execute(Engines::Maxwell3D& maxwell3d, std::span<const u32> parameters, [[maybe_unused]] u32 method) {
+    //TRACY_ZONE_SCOPED
+    TRACY_MSG_C("ConstBuffer_1", 0xff4040)
+
     maxwell3d.RefreshParameters();
     const u32 offset = (parameters[0] & 0x3FFFFFFF) << 2;
     const u32 address = maxwell3d.regs.shadow_scratch[24];
@@ -326,6 +346,9 @@ void HLE_C713C83D8F63CCF3::Execute(Engines::Maxwell3D& maxwell3d, std::span<cons
     const_buffer.offset = offset;
 }
 void HLE_D7333D26E0A93EDE::Execute(Engines::Maxwell3D& maxwell3d, std::span<const u32> parameters, [[maybe_unused]] u32 method) {
+    //TRACY_ZONE_SCOPED
+    TRACY_MSG_C("ConstBuffer_2", 0xff4040)
+
     maxwell3d.RefreshParameters();
     const size_t index = parameters[0];
     const u32 address = maxwell3d.regs.shadow_scratch[42 + index];
@@ -336,6 +359,9 @@ void HLE_D7333D26E0A93EDE::Execute(Engines::Maxwell3D& maxwell3d, std::span<cons
     const_buffer.address_low = address << 8;
 }
 void HLE_BindShader::Execute(Engines::Maxwell3D& maxwell3d, std::span<const u32> parameters, [[maybe_unused]] u32 method) {
+    //TRACY_ZONE_SCOPED
+    TRACY_MSG_C("BindShader", 0x40ff40)
+
     maxwell3d.RefreshParameters();
     auto& regs = maxwell3d.regs;
     const u32 index = parameters[0];
@@ -360,6 +386,9 @@ void HLE_BindShader::Execute(Engines::Maxwell3D& maxwell3d, std::span<const u32>
     maxwell3d.ProcessCBBind(bind_group_id);
 }
 void HLE_SetRasterBoundingBox::Execute(Engines::Maxwell3D& maxwell3d, std::span<const u32> parameters, [[maybe_unused]] u32 method) {
+    //TRACY_ZONE_SCOPED
+    TRACY_MSG_C("SetRasterBoundingBox", 0xff4040)
+
     maxwell3d.RefreshParameters();
     const u32 raster_mode = parameters[0];
     auto& regs = maxwell3d.regs;
@@ -369,6 +398,9 @@ void HLE_SetRasterBoundingBox::Execute(Engines::Maxwell3D& maxwell3d, std::span<
     regs.raster_bounding_box.pad.Assign(scratch_data & raster_enabled);
 }
 void HLE_ClearConstBuffer::Execute(Engines::Maxwell3D& maxwell3d, std::span<const u32> parameters, [[maybe_unused]] u32 method) {
+    //TRACY_ZONE_SCOPED
+    TRACY_MSG_C("ClearConstBuffer", 0xff4040)
+
     static constexpr std::array<u32, 0x7000> zeroes{}; //must be bigger than either 7000 or 5F00
     maxwell3d.RefreshParameters();
     auto& regs = maxwell3d.regs;
@@ -379,6 +411,9 @@ void HLE_ClearConstBuffer::Execute(Engines::Maxwell3D& maxwell3d, std::span<cons
     maxwell3d.ProcessCBMultiData(zeroes.data(), parameters[2] * 4);
 }
 void HLE_ClearMemory::Execute(Engines::Maxwell3D& maxwell3d, std::span<const u32> parameters, [[maybe_unused]] u32 method) {
+    //TRACY_ZONE_SCOPED
+    TRACY_MSG_C("ClearMemory", 0xff4040)
+
     maxwell3d.RefreshParameters();
     const u32 needed_memory = parameters[2] / sizeof(u32);
     if (needed_memory > zero_memory.size()) {
@@ -393,6 +428,9 @@ void HLE_ClearMemory::Execute(Engines::Maxwell3D& maxwell3d, std::span<const u32
     maxwell3d.CallMultiMethod(size_t(MAXWELL3D_REG_INDEX(inline_data)), zero_memory.data(), needed_memory, needed_memory);
 }
 void HLE_TransformFeedbackSetup::Execute(Engines::Maxwell3D& maxwell3d, std::span<const u32> parameters, [[maybe_unused]] u32 method) {
+    //TRACY_ZONE_SCOPED
+    TRACY_MSG_C("TransformFeedbackSetup", 0xff4040)
+
     maxwell3d.RefreshParameters();
     auto& regs = maxwell3d.regs;
     regs.transform_feedback_enabled = 1;

@@ -12,6 +12,8 @@
 #include "core/hle/service/vi/display_list.h"
 #include "core/hle/service/vi/vsync_manager.h"
 
+#include "common/tracy_instrumentation.h"
+
 constexpr auto FrameNs = std::chrono::nanoseconds{1000000000 / 60};
 
 namespace Service::VI {
@@ -27,6 +29,7 @@ Conductor::Conductor(Core::System& system, Container& container, DisplayList& di
             "ScreenComposition",
             [this](s64 time,
                    std::chrono::nanoseconds ns_late) -> std::optional<std::chrono::nanoseconds> {
+                TRACY_ZONE_SCOPEDN("Conductor vsync callback")
                 m_signal.Set();
                 return std::chrono::nanoseconds(this->GetNextTicks());
             });
@@ -38,6 +41,7 @@ Conductor::Conductor(Core::System& system, Container& container, DisplayList& di
             "ScreenComposition",
             [this](s64 time,
                    std::chrono::nanoseconds ns_late) -> std::optional<std::chrono::nanoseconds> {
+                TRACY_ZONE_SCOPEDN("Conductor vsync callback")
                 this->ProcessVsync();
                 return std::chrono::nanoseconds(this->GetNextTicks());
             });
@@ -68,6 +72,8 @@ void Conductor::UnlinkVsyncEvent(u64 display_id, Event* event) {
 }
 
 void Conductor::ProcessVsync() {
+    TRACY_ZONE_SCOPED
+
     for (auto& [display_id, manager] : m_vsync_managers) {
         m_container.ComposeOnDisplay(&m_swap_interval, &m_compose_speed_scale, display_id);
         manager.SignalVsync();

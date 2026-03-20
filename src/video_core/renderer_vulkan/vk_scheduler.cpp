@@ -25,6 +25,8 @@
 #include "video_core/vulkan_common/vulkan_device.h"
 #include "video_core/vulkan_common/vulkan_wrapper.h"
 
+#include "common/tracy_instrumentation.h"
+
 namespace Vulkan {
 
 
@@ -223,7 +225,10 @@ void Scheduler::WorkerThread(std::stop_token stop_token) {
             // Perform the work, tracking whether the chunk was a submission
             // before executing.
             const bool has_submit = work->HasSubmit();
+
+            { TRACY_ZONE_SCOPEDN("Vulkan::Scheduler::ExecuteAll")
             work->ExecuteAll(current_cmdbuf, current_upload_cmdbuf);
+            }
 
             // If the chunk was a submission, reallocate the command buffer.
             if (has_submit) {

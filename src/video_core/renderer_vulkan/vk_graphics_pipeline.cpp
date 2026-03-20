@@ -29,6 +29,8 @@
 #include "video_core/gpu_logging/gpu_logging.h"
 #include "common/settings.h"
 
+#include "common/tracy_instrumentation.h"
+
 #if defined(_MSC_VER) && defined(NDEBUG)
 #define LAMBDA_FORCEINLINE [[msvc::forceinline]]
 #else
@@ -310,6 +312,8 @@ void GraphicsPipeline::AddTransition(GraphicsPipeline* transition) {
 
 template <typename Spec>
 bool GraphicsPipeline::ConfigureImpl(bool is_indexed) {
+    TRACY_ZONE_SCOPED
+
     std::array<VideoCommon::ImageViewInOut, MAX_IMAGE_ELEMENTS> views;
     std::array<VideoCommon::SamplerId, MAX_IMAGE_ELEMENTS> samplers;
     size_t sampler_index{};
@@ -509,6 +513,8 @@ bool GraphicsPipeline::ConfigureImpl(bool is_indexed) {
 
 void GraphicsPipeline::ConfigureDraw(const RescalingPushConstant& rescaling,
                                      const RenderAreaPushConstant& render_area) {
+    TRACY_ZONE_SCOPED
+
     scheduler.RequestRenderpass(texture_cache.GetFramebuffer());
     if (!is_built.load(std::memory_order::relaxed)) {
         // Wait for the pipeline to be built

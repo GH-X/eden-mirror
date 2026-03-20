@@ -18,6 +18,8 @@
 #include "core/hle/kernel/physical_core.h"
 #include "video_core/gpu.h"
 
+#include "common/tracy_instrumentation.h"
+
 namespace Core {
 
 CpuManager::CpuManager(System& system_) : system{system_} {}
@@ -101,6 +103,9 @@ void CpuManager::MultiCoreRunIdleThread() {
             physical_core.Idle();
         }
 
+    #if TRACY_ENABLE
+        TRACY_ZONE_SCOPEDN("IdleThread::HandleInterrupt");
+    #endif
         HandleInterrupt();
     }
 }
@@ -184,6 +189,10 @@ void CpuManager::ShutdownThread() {
 }
 
 void CpuManager::RunThread(std::stop_token token, std::size_t core) {
+#if TRACY_ENABLE
+    TRACY_ZONE_SCOPEDN("RunThread");
+#endif
+
     /// Initialization
     system.RegisterCoreThread(core);
     std::string name = is_multicore ? ("CPUCore_" + std::to_string(core)) : std::string{"CPUThread"};

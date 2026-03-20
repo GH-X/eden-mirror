@@ -6,6 +6,8 @@
 #include "video_core/engines/draw_manager.h"
 #include "video_core/rasterizer_interface.h"
 
+#include "common/tracy_instrumentation.h"
+
 namespace Tegra::Engines {
 DrawManager::DrawManager(Maxwell3D* maxwell3d_) : maxwell3d(maxwell3d_) {}
 
@@ -263,6 +265,7 @@ void DrawManager::UpdateTopology() {
 void DrawManager::ProcessDraw(bool draw_indexed, u32 instance_count) {
     LOG_TRACE(HW_GPU, "called, topology={}, count={}", draw_state.topology,
               draw_indexed ? draw_state.index_buffer.count : draw_state.vertex_buffer.count);
+    TRACY_ZONE_SCOPED
 
     UpdateTopology();
 
@@ -277,6 +280,7 @@ void DrawManager::ProcessDrawIndirect() {
         "called, topology={}, is_indexed={}, includes_count={}, buffer_size={}, max_draw_count={}",
         draw_state.topology, indirect_state.is_indexed, indirect_state.include_count,
         indirect_state.buffer_size, indirect_state.max_draw_counts);
+    TRACY_ZONE_SCOPED
 
     UpdateTopology();
 

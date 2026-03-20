@@ -21,6 +21,8 @@
 #include "core/core_timing.h"
 #include "core/hardware_properties.h"
 
+#include "common/tracy_instrumentation.h"
+
 namespace Core::Timing {
 
 constexpr s64 MAX_SLICE_LENGTH = 10000;
@@ -235,15 +237,20 @@ std::optional<s64> CoreTiming::Advance() {
 
                 basic_lock.unlock();
 
+                { TRACY_ZONE_SCOPEDN("CoreTiming::event_callback")
                 event_type->callback(
                     evt_time, std::chrono::nanoseconds{GetGlobalTimeNs().count() - evt_time});
+                }
 
                 basic_lock.lock();
             } else {
                 basic_lock.unlock();
 
-                const auto new_schedule_time{event_type->callback(
-                    evt_time, std::chrono::nanoseconds{GetGlobalTimeNs().count() - evt_time})};
+                std::optional<std::chrono::nanoseconds> new_schedule_time;
+                { TRACY_ZONE_SCOPEDN("CoreTiming::event_callback")
+                new_schedule_time = event_type->callback(
+                    evt_time, std::chrono::nanoseconds{GetGlobalTimeNs().count() - evt_time});
+                }
 
                 basic_lock.lock();
 
