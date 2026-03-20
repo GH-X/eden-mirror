@@ -13,6 +13,9 @@
 
 #include <boost/context/detail/fcontext.hpp>
 
+//#include "common/tracy_instrumentation.h"
+//#include <sstream>
+
 namespace Common {
 
 #ifdef __OPENORBIS__
@@ -42,6 +45,13 @@ struct Fiber::FiberImpl {
     u8* rewind_stack_limit = nullptr;
     bool is_thread_fiber = false;
     bool released = false;
+
+// Support tracy fibers, show them using incrementing counter in profiler
+// TODO: Commented out because I could not properly test because CPU threads have messed up ghost zones due to jit code failing to support stack traces
+//#if TRACY_ENABLE
+//    std::string tracy_fiber_name;
+//    static inline int tracy_fiber_next_id = 1;
+//#endif
 };
 
 void Fiber::SetRewindPoint(std::function<void()>&& rewind_func) {
@@ -49,12 +59,20 @@ void Fiber::SetRewindPoint(std::function<void()>&& rewind_func) {
 }
 
 Fiber::Fiber(std::function<void()>&& entry_point_func) : impl{std::make_unique<FiberImpl>()} {
+//#if TRACY_ENABLE
+//    std::ostringstream ss;
+//    ss << "fiber #" << impl->tracy_fiber_next_id++;
+//    impl->tracy_fiber_name = std::move(ss).str();
+//#endif
     impl->entry_point = std::move(entry_point_func);
     impl->stack_limit = impl->stack.data();
     impl->rewind_stack_limit = impl->rewind_stack.data();
     u8* stack_base = impl->stack_limit + DEFAULT_STACK_SIZE;
     impl->context = boost::context::detail::make_fcontext(stack_base, impl->stack.size(), [](boost::context::detail::transfer_t transfer) -> void {
         auto* fiber = static_cast<Fiber*>(transfer.data);
+    //#if TRACY_ENABLE
+    //    TracyFiberEnter(fiber->impl->tracy_fiber_name.c_str());
+    //#endif
         ASSERT(fiber && fiber->impl && fiber->impl->previous_fiber && fiber->impl->previous_fiber->impl);
         ASSERT(fiber->impl->canary_1 == CANARY_VALUE);
         ASSERT(fiber->impl->canary_2 == CANARY_VALUE);
@@ -91,7 +109,16 @@ void Fiber::YieldTo(std::weak_ptr<Fiber> weak_from, Fiber& to) {
     to.impl->guard.lock();
     to.impl->previous_fiber = weak_from.lock();
 
+//#if TRACY_ENABLE
+//    // Is this correct?
+//    TracyFiberLeave;
+//#endif
+
     auto transfer = boost::context::detail::jump_fcontext(to.impl->context, &to);
+//#if TRACY_ENABLE
+//    // Switched to executing "to" fiber, inform tracy
+//    TracyFiberEnter(to.impl->tracy_fiber_name.c_str());
+//#endif
     // "from" might no longer be valid if the thread was killed
     if (auto from = weak_from.lock()) {
         if (from->impl->previous_fiber == nullptr) {

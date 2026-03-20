@@ -55,6 +55,10 @@ if(WIN32)
     endif()
 endif()
 
+if (ENABLE_TRACY)
+    target_link_libraries(yuzu-cmd PRIVATE Tracy::client)
+endif()
+
 create_target_directory_groups(yuzu-cmd)
 
 # needed for vma

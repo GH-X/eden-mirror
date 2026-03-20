@@ -20,6 +20,8 @@
 #ifdef _WIN32
 #include <QScreen>
 
+#include "common/tracy_instrumentation.h"
+
 static void OverrideWindowsFont() {
     // Qt5 chooses these fonts on Windows and they have fairly ugly alphanumeric/cyrillic characters
     // Asking to use "MS Shell Dlg 2" gives better other chars while leaving the Chinese Characters.
@@ -90,6 +92,17 @@ int main(int argc, char* argv[]) {
     if (CheckEnvVars(&is_child)) {
         return 0;
     }
+
+#if TRACY_ENABLE
+    // Avoid cmake static library for tracy being optimized away by "helpful" linker if when not referenced (no manual instrumentation, but still want sample-based mode)
+    //TracyNoop; // This would be needed if not for tracy::BeginSamplingProfiling
+
+    // have to use TRACY_SAMPLING_PROFILER_MANUAL_START because program is started a second time as child process for vulkan check
+    // this messes with tracy sample profiling as windows event tracing in child process stops it for parent process
+    if (!is_child) {
+        tracy::BeginSamplingProfiling();
+    }
+#endif
 
     if (StartupChecks(argv[0], &has_broken_vulkan,
                       Settings::values.perform_vulkan_check.GetValue())) {
@@ -177,5 +190,11 @@ int main(int argc, char* argv[]) {
 
     int result = app.exec();
     detached_tasks.WaitForAllTasks();
+
+#if TRACY_ENABLE
+    if (!is_child) {
+        tracy::EndSamplingProfiling();
+    }
+#endif
     return result;
 }

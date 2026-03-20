@@ -19,6 +19,8 @@
 #include "video_core/vulkan_common/vulkan_wrapper.h"
 #include "vulkan/vulkan_core.h"
 
+#include "common/tracy_instrumentation.h"
+
 namespace Vulkan {
 
 namespace {
@@ -226,6 +228,10 @@ void Swapchain::Present(VkSemaphore render_semaphore) {
     if (frame_index >= image_count) {
         frame_index = 0;
     }
+
+    #if TRACY_ENABLE
+        FrameMark;
+    #endif
 }
 
 void Swapchain::CreateSwapchain(const VkSurfaceCapabilitiesKHR& capabilities) {

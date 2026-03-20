@@ -219,6 +219,8 @@ cmake_dependent_option(YUZU_CMD "Compile the eden-cli executable" ON "NOT ANDROI
 
 cmake_dependent_option(YUZU_CRASH_DUMPS "Compile crash dump (Minidump) support" OFF "WIN32 OR PLATFORM_LINUX" OFF)
 
+option(ENABLE_TRACY "Enable Tracy profiler support" OFF)
+
 option(YUZU_DOWNLOAD_TIME_ZONE_DATA "Always download time zone binaries" ON)
 set(YUZU_TZDB_PATH "" CACHE STRING "Path to a pre-downloaded timezone database")
 
@@ -660,6 +662,29 @@ if (WIN32 AND YUZU_CRASH_DUMPS)
     # add_library(libbreakpad_client INTERFACE IMPORTED)
     # target_link_libraries(libbreakpad_client INTERFACE "${BREAKPAD_CLIENT_LIBRARY}")
     # target_include_directories(libbreakpad_client INTERFACE "${BREAKPAD_CLIENT_INCLUDE_DIR}")
+endif()
+
+if (ENABLE_TRACY)
+    AddJsonPackage(tracy)
+
+    if (tracy_ADDED)
+        include_directories(${tracy_SOURCE_DIR}/public)
+        # build tracy client as its own static library even if overkill
+        add_library(tracy_client STATIC ${tracy_SOURCE_DIR}/public/TracyClient.cpp)
+        target_include_directories(tracy_client PRIVATE src)
+
+        # Avoid tracy errors (This sets it to W0 instead of W3 though? TODO: fix this)
+        if (MSVC AND CXX_CLANG)
+            target_compile_options(tracy_client PRIVATE /W3)
+        endif()
+
+        add_compile_definitions(TRACY_ENABLE)
+        add_compile_definitions(TRACY_SAMPLING_PROFILER_MANUAL_START) # See yuzu\main.cpp
+        add_compile_definitions(TRACY_ON_DEMAND) # Use on demand mode to avoid profiling emulator start up and game load screens
+        add_compile_definitions(TRACY_FIBERS)
+
+        add_library(Tracy::client ALIAS tracy_client)
+    endif()
 endif()
 
 # Include source code

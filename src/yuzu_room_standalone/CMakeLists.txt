@@ -11,6 +11,10 @@ if(UNIX AND NOT APPLE)
     install(TARGETS yuzu_room_standalone RUNTIME DESTINATION "${CMAKE_INSTALL_PREFIX}/bin")
 endif()
 
+if (ENABLE_TRACY)
+    target_link_libraries(yuzu_room_standalone PRIVATE Tracy::client)
+endif()
+
 if (YUZU_STATIC_ROOM)
     target_link_options(yuzu_room_standalone PRIVATE "-static")
 endif()

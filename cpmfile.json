@@ -114,5 +114,12 @@
             "QUAZIP_INSTALL OFF",
             "QUAZIP_ENABLE_QTEXTCODEC OFF"
         ]
+    },
+    "tracy": {
+        "repo": "wolfpld/tracy",
+        "sha": "05cceee",
+        "hash": "fdf8f3eb0f44c17760e9e559ece6907606580da20568b7900e97e40f3ea773b9e6dbac7f0b04ef32e363d779ec013af63c85adbe2a3807db9205ec48887a546c",
+        "version": "0.13.1",
+        "download_only": true
     }
 }
