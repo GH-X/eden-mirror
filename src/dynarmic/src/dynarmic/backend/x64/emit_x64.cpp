@@ -26,6 +26,8 @@
 #include "dynarmic/ir/microinstruction.h"
 #include "dynarmic/ir/opcodes.h"
 
+#include "common/tracy_jit_symbols.h"
+
 // TODO: Have ARM flags in host flags and not have them use up GPR registers unless necessary.
 // TODO: Actually implement that proper instruction selector you've always wanted to sweetheart.
 
@@ -346,7 +348,9 @@ Xbyak::Label EmitX64::EmitCond(IR::Cond cond) {
 }
 
 EmitX64::BlockDescriptor EmitX64::RegisterBlock(const IR::LocationDescriptor& descriptor, CodePtr entrypoint, size_t size) {
-    PerfMapRegister(entrypoint, code.getCurr(), LocationDescriptorToFriendlyName(descriptor));
+    auto friendly_name = LocationDescriptorToFriendlyName(descriptor);
+    PerfMapRegister(entrypoint, code.getCurr(), friendly_name);
+    tracy_jit::JitCodeMap::RegisterBlock(entrypoint, size, std::move(friendly_name));
     Patch(descriptor, entrypoint);
 
     BlockDescriptor block_desc{entrypoint, size};
@@ -392,6 +396,7 @@ void EmitX64::ClearCache() {
     patch_information.clear();
 
     PerfMapClear();
+    tracy_jit::JitCodeMap::ClearAllBlocks();
 }
 
 void EmitX64::InvalidateBasicBlocks(const ankerl::unordered_dense::set<IR::LocationDescriptor>& locations) {
@@ -399,6 +404,8 @@ void EmitX64::InvalidateBasicBlocks(const ankerl::unordered_dense::set<IR::Locat
     for (const auto& descriptor : locations) {
         if (auto const it = block_descriptors.find(descriptor); it != block_descriptors.end()) {
             Unpatch(descriptor);
+            tracy_jit::JitCodeMap::UnregisterBlock(it->second.entrypoint);
+
             block_descriptors.erase(it);
         }
     }

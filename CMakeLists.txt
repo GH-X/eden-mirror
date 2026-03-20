@@ -670,7 +670,7 @@ if (ENABLE_TRACY)
     if (tracy_ADDED)
         include_directories(${tracy_SOURCE_DIR}/public)
         # build tracy client as its own static library even if overkill
-        add_library(tracy_client STATIC ${tracy_SOURCE_DIR}/public/TracyClient.cpp)
+        add_library(tracy_client STATIC ${tracy_SOURCE_DIR}/public/TracyClient.cpp src/common/tracy_jit_symbols.cpp)
         target_include_directories(tracy_client PRIVATE src)
 
         # Avoid tracy errors (This sets it to W0 instead of W3 though? TODO: fix this)
@@ -682,6 +682,7 @@ if (ENABLE_TRACY)
         add_compile_definitions(TRACY_SAMPLING_PROFILER_MANUAL_START) # See yuzu\main.cpp
         add_compile_definitions(TRACY_ON_DEMAND) # Use on demand mode to avoid profiling emulator start up and game load screens
         add_compile_definitions(TRACY_FIBERS)
+        add_compile_definitions(TRACY_HAS_USER_SYMBOLS) # try and capture jitted functions in sample mode
 
         add_library(Tracy::client ALIAS tracy_client)
     endif()
