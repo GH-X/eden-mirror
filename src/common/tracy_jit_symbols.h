@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 #pragma once
 #include <cstdint>
 #include <cassert>
@@ -78,7 +81,7 @@ public:
 
         assert(ptr >= it->second.entrypoint);
         if (ptr - it->second.entrypoint < it->second.size) {
-            set_result(it->second, exe_name.c_str());
+            set_result(it->second, module_name.c_str());
             return true;
         }
         return false;
@@ -96,12 +99,12 @@ private:
     // sorted map of currently active jitted code blocks
     std::map<uint64_t, JittedCodeBlock> sorted_blocks;
     std::mutex mutex;
-    std::string exe_name;
+    std::string module_name;
 
-    static std::string get_exe_name ();
+    static std::string get_module_name ();
 
     JitCodeMap () {
-        exe_name = get_exe_name();
+        module_name = get_module_name();
     }
 };
 
