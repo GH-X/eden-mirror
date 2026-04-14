@@ -1,4 +1,4 @@
-// SPDX-FileCopyrightText: Copyright 2025 Eden Emulator Project
+// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 // SPDX-FileCopyrightText: Copyright 2021 yuzu Emulator Project
@@ -78,12 +78,19 @@ bool DmaPusher::Step() {
         synced = false;
     }
 
-    if (header.size > 0 && dma_state.method >= MacroRegistersStart && subchannels[dma_state.subchannel]) {
-        subchannels[dma_state.subchannel]->current_dirty = memory_manager.IsMemoryDirty(dma_state.dma_get, header.size * sizeof(u32));
-    }
-
     if (header.size > 0) {
-        if (Settings::IsDMALevelDefault() ? (Settings::IsGPULevelMedium() || Settings::IsGPULevelHigh()) : Settings::IsDMALevelSafe()) {
+
+        if (dma_state.method >= MacroRegistersStart && subchannels[dma_state.subchannel]) {
+            subchannels[dma_state.subchannel]->current_dirty = memory_manager.IsMemoryDirty(dma_state.dma_get, header.size * sizeof(u32));
+        }
+
+        const bool safe_by_settings =
+            Settings::IsDMALevelDefault() ? !Settings::IsGPULevelLow() : Settings::IsDMALevelSafe();
+
+        const bool segment_dirty = !safe_by_settings &&
+            memory_manager.IsMemoryDirty(dma_state.dma_get, sizeof(u32), VideoCommon::CacheType::BufferCache);
+
+        if (safe_by_settings || segment_dirty) {
             Tegra::Memory::GpuGuestMemory<Tegra::CommandHeader, Tegra::Memory::GuestMemoryFlags::SafeRead>headers(memory_manager, dma_state.dma_get, header.size, &command_headers);
             ProcessCommands(headers);
         } else {
