@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: Copyright 2026 Eden Emulator Project
+// SPDX-License-Identifier: GPL-3.0-or-later
+
 // SPDX-FileCopyrightText: Copyright 2022 yuzu Emulator Project
 // SPDX-License-Identifier: GPL-2.0-or-later
 
@@ -5,6 +8,7 @@
 #include "video_core/dirty_flags.h"
 #include "video_core/engines/draw_manager.h"
 #include "video_core/rasterizer_interface.h"
+#include "video_core/engines/draw_guard.h"
 
 namespace Tegra::Engines {
 DrawManager::DrawManager(Maxwell3D* maxwell3d_) : maxwell3d(maxwell3d_) {}
@@ -265,6 +269,7 @@ void DrawManager::ProcessDraw(bool draw_indexed, u32 instance_count) {
               draw_indexed ? draw_state.index_buffer.count : draw_state.vertex_buffer.count);
 
     UpdateTopology();
+    if (ShouldDiscardCorruptedDraw(draw_state, nullptr, draw_indexed, instance_count)) return;
 
     if (maxwell3d->ShouldExecute()) {
         maxwell3d->rasterizer->Draw(draw_indexed, instance_count);
@@ -279,6 +284,7 @@ void DrawManager::ProcessDrawIndirect() {
         indirect_state.buffer_size, indirect_state.max_draw_counts);
 
     UpdateTopology();
+    if (ShouldDiscardCorruptedDraw(draw_state, &indirect_state, indirect_state.is_indexed, 1)) return;
 
     if (maxwell3d->ShouldExecute()) {
         maxwell3d->rasterizer->DrawIndirect();
